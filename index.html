@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Daily Pulse">
+  <meta name="description" content="Your daily wellness tracker — weight, goals, streaks, and motivation.">
+  
+  <title>Daily Pulse</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="public/icons/logo.png">
+  <link rel="apple-touch-icon" href="public/icons/logo.png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/buttons.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="theme-default-dark btn-style-clean">
+  
+  <div id="app">
+    
+    <!-- Header -->
+    <header id="app-header">
+      <div class="header-content">
+        <div class="header-left">
+          <img src="public/icons/logo.png" alt="" class="header-logo" onerror="this.style.display='none'">
+          <div>
+            <h1 class="header-title" data-label="appTitle">Daily Pulse</h1>
+            <p class="header-date" id="header-date"></p>
+          </div>
+        </div>
+        <button class="header-settings-btn" id="btn-settings" aria-label="Settings">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Container -->
+    <main id="page-container"></main>
+
+    <!-- Bottom Navigation (6 tabs) -->
+    <nav id="bottom-nav">
+      <button class="nav-btn active" data-page="dashboard">
+        <img src="public/icons/nav-home.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">🏠</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-btn" data-page="weight">
+        <img src="public/icons/nav-weight.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">⚖️</span>
+        <span class="nav-label">Weight</span>
+      </button>
+      <button class="nav-btn" data-page="sleep">
+        <img src="public/icons/nav-sleep.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">😴</span>
+        <span class="nav-label">Sleep</span>
+      </button>
+      <button class="nav-btn" data-page="budget">
+        <img src="public/icons/nav-budget.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">💰</span>
+        <span class="nav-label">Budget</span>
+      </button>
+      <button class="nav-btn" data-page="goals">
+        <img src="public/icons/nav-goals.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">🎯</span>
+        <span class="nav-label">Goals</span>
+      </button>
+      <button class="nav-btn" data-page="stats">
+        <img src="public/icons/nav-stats.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">📊</span>
+        <span class="nav-label">Stats</span>
+      </button>
+      <button class="nav-btn" data-page="awards">
+        <img src="public/icons/nav-awards.png" alt="" class="nav-icon" onerror="this.style.display='none'">
+        <span class="nav-emoji">🏆</span>
+        <span class="nav-label">Awards</span>
+      </button>
+    </nav>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div id="modal-content" class="modal-content"></div>
+    </div>
+
+  </div>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/store.js"></script>
+  <script src="js/budget.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/quotes.js"></script>
+  <script src="js/milestones.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/reminders.js"></script>
+  <script src="js/insights.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

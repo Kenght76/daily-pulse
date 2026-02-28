@@ -1,0 +1,422 @@
+/* ============================================================
+   themes.css — Theme Definitions (Beautified Edition)
+   ============================================================ */
+
+/* ---- DEFAULT DARK ---- */
+.theme-default-dark {
+  --bg-primary: #0f1117;
+  --bg-secondary: rgba(255,255,255,0.04);
+  --bg-tertiary: rgba(0,0,0,0.4);
+  --bg-card: rgba(255,255,255,0.03);
+  --text-primary: #e8e8e8;
+  --text-secondary: #888;
+  --text-accent: #6ee7b7;
+  --accent-primary: #10b981;
+  --accent-secondary: #3b82f6;
+  --accent-gradient: linear-gradient(135deg, #10b981, #059669);
+  --border-color: rgba(255,255,255,0.06);
+  --shadow-color: rgba(0,0,0,0.3);
+  --theme-bg-image: none;
+  --theme-bg-overlay: transparent;
+}
+
+/* ---- DEFAULT LIGHT ---- */
+.theme-default-light {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: rgba(255,255,255,0.85);
+  --bg-tertiary: rgba(0,0,0,0.04);
+  --bg-card: rgba(255,255,255,0.85);
+  --text-primary: #1a1a2e;
+  --text-secondary: #666;
+  --text-accent: #059669;
+  --accent-primary: #10b981;
+  --accent-secondary: #3b82f6;
+  --accent-gradient: linear-gradient(135deg, #10b981, #059669);
+  --border-color: rgba(0,0,0,0.08);
+  --shadow-color: rgba(0,0,0,0.08);
+  --theme-bg-image: none;
+  --theme-bg-overlay: transparent;
+}
+.theme-default-light #bottom-nav { background: rgba(245,245,247,0.92); }
+
+/* ---- METAL ---- */
+.theme-metal {
+  --bg-primary: #1c1f26;
+  --bg-secondary: rgba(40,44,52,0.8);
+  --bg-tertiary: rgba(0,0,0,0.5);
+  --bg-card: rgba(35,39,47,0.85);
+  --text-primary: #d4d4d8;
+  --text-secondary: #71717a;
+  --text-accent: #a1a1aa;
+  --accent-primary: #71717a;
+  --accent-secondary: #52525b;
+  --accent-gradient: linear-gradient(145deg, #52525b, #3f3f46);
+  --border-color: rgba(161,161,170,0.15);
+  --shadow-color: rgba(0,0,0,0.5);
+}
+.theme-metal .header-title,
+.theme-metal .stat-value {
+  background: linear-gradient(135deg, #e4e4e7, #a1a1aa);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+/* ---- GLASS ---- */
+.theme-glass {
+  --bg-primary: #0c0e18;
+  --bg-secondary: rgba(255,255,255,0.06);
+  --bg-tertiary: rgba(255,255,255,0.03);
+  --bg-card: rgba(255,255,255,0.05);
+  --text-primary: #f0f0f5;
+  --text-secondary: #8888aa;
+  --text-accent: #a78bfa;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #6366f1;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6, #6366f1);
+  --border-color: rgba(255,255,255,0.1);
+  --shadow-color: rgba(0,0,0,0.3);
+}
+.theme-glass .card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---- NEON ---- */
+.theme-neon {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: rgba(15,15,25,0.9);
+  --bg-tertiary: rgba(0,0,0,0.6);
+  --bg-card: rgba(15,15,25,0.85);
+  --text-primary: #f0f0ff;
+  --text-secondary: #666680;
+  --text-accent: #f0abfc;
+  --accent-primary: #d946ef;
+  --accent-secondary: #06b6d4;
+  --accent-gradient: linear-gradient(135deg, #d946ef, #06b6d4);
+  --border-color: rgba(217,70,239,0.15);
+  --shadow-color: rgba(217,70,239,0.2);
+}
+.theme-neon .card { border: 1px solid rgba(217,70,239,0.2); box-shadow: 0 0 20px rgba(217,70,239,0.05); }
+.theme-neon .header-title { background: linear-gradient(135deg, #f0abfc, #06b6d4); -webkit-background-clip: text; background-clip: text; }
+.theme-neon .nav-btn.active { color: #d946ef; }
+.theme-neon .nav-btn.active::before { background: #d946ef; }
+
+/* ============================================================
+   🎄 CHRISTMAS — Rich red & green, gold accents, cozy glow
+   ============================================================ */
+.theme-christmas {
+  --bg-primary: #0d1208;
+  --bg-secondary: rgba(20,30,12,0.85);
+  --bg-tertiary: rgba(0,0,0,0.4);
+  --bg-card: linear-gradient(160deg, rgba(30,15,15,0.85), rgba(15,30,12,0.7));
+  --text-primary: #fef9ef;
+  --text-secondary: #b8a88a;
+  --text-accent: #4ade80;
+  --accent-primary: #dc2626;
+  --accent-secondary: #16a34a;
+  --accent-gradient: linear-gradient(135deg, #dc2626, #16a34a);
+  --border-color: rgba(220,170,50,0.15);
+  --shadow-color: rgba(0,0,0,0.5);
+  --theme-bg-image: url('../public/themes/christmas/bg.png');
+  --theme-bg-overlay: rgba(10,15,8,0.82);
+}
+
+.theme-christmas .card {
+  background: linear-gradient(160deg, rgba(140,20,20,0.12), rgba(20,100,40,0.08));
+  border: 1px solid rgba(220,170,50,0.12);
+  box-shadow: 0 4px 20px rgba(220,38,38,0.06), inset 0 1px 0 rgba(255,215,0,0.05);
+}
+
+.theme-christmas .header-title {
+  background: linear-gradient(135deg, #fbbf24, #dc2626, #16a34a);
+  -webkit-background-clip: text; background-clip: text;
+  text-shadow: 0 0 30px rgba(251,191,36,0.3);
+}
+
+.theme-christmas .stat-value {
+  background: linear-gradient(135deg, #fbbf24, #fef3c7);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.theme-christmas #app-header {
+  background: linear-gradient(180deg, rgba(140,20,20,0.3), transparent);
+}
+
+.theme-christmas #bottom-nav {
+  background: linear-gradient(180deg, rgba(10,15,8,0.85), rgba(30,10,10,0.95));
+  border-top: 1px solid rgba(220,170,50,0.1);
+}
+
+.theme-christmas .nav-btn.active { color: #fbbf24; }
+.theme-christmas .nav-btn.active::before { background: linear-gradient(90deg, #dc2626, #16a34a); }
+
+.theme-christmas .goal-check.checked { background: #dc2626; border-color: #dc2626; }
+.theme-christmas .circle-progress-ring { stroke: #dc2626; }
+
+.theme-christmas .quote-boost-reveal {
+  background: linear-gradient(135deg, rgba(140,20,20,0.2), rgba(20,100,40,0.15));
+  border-color: rgba(220,170,50,0.15);
+}
+
+.theme-christmas .app-btn.primary {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  box-shadow: 0 4px 15px rgba(220,38,38,0.3);
+}
+
+.theme-christmas .badge.earned { box-shadow: 0 0 15px rgba(251,191,36,0.2); }
+.theme-christmas .tag-filter-btn.active { background: #dc2626; }
+
+/* ============================================================
+   🎃 HALLOWEEN — Deep orange, black, purple glow, spooky
+   ============================================================ */
+.theme-halloween {
+  --bg-primary: #080510;
+  --bg-secondary: rgba(12,8,20,0.9);
+  --bg-tertiary: rgba(0,0,0,0.6);
+  --bg-card: rgba(15,10,25,0.85);
+  --text-primary: #fef3c7;
+  --text-secondary: #8b6e3f;
+  --text-accent: #fb923c;
+  --accent-primary: #f97316;
+  --accent-secondary: #a855f7;
+  --accent-gradient: linear-gradient(135deg, #f97316, #a855f7);
+  --border-color: rgba(249,115,22,0.12);
+  --shadow-color: rgba(168,85,247,0.15);
+  --theme-bg-image: url('../public/themes/halloween/bg.png');
+  --theme-bg-overlay: rgba(8,5,16,0.85);
+}
+
+.theme-halloween .card {
+  background: linear-gradient(160deg, rgba(249,115,22,0.06), rgba(168,85,247,0.06));
+  border: 1px solid rgba(249,115,22,0.1);
+  box-shadow: 0 4px 20px rgba(168,85,247,0.05), 0 0 40px rgba(249,115,22,0.03);
+}
+
+.theme-halloween .header-title {
+  background: linear-gradient(135deg, #fb923c, #f97316, #c084fc);
+  -webkit-background-clip: text; background-clip: text;
+  text-shadow: 0 0 30px rgba(249,115,22,0.4);
+}
+
+.theme-halloween .stat-value {
+  background: linear-gradient(135deg, #fbbf24, #fb923c);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.theme-halloween #app-header {
+  background: linear-gradient(180deg, rgba(168,85,247,0.15), transparent);
+}
+
+.theme-halloween #bottom-nav {
+  background: linear-gradient(180deg, rgba(8,5,16,0.85), rgba(15,8,25,0.95));
+  border-top: 1px solid rgba(168,85,247,0.1);
+}
+
+.theme-halloween .nav-btn.active { color: #f97316; }
+.theme-halloween .nav-btn.active::before { background: linear-gradient(90deg, #f97316, #a855f7); }
+
+.theme-halloween .goal-check.checked { background: #f97316; border-color: #f97316; }
+.theme-halloween .circle-progress-ring { stroke: #f97316; }
+
+.theme-halloween .quote-boost-reveal {
+  background: linear-gradient(135deg, rgba(249,115,22,0.1), rgba(168,85,247,0.1));
+  border-color: rgba(249,115,22,0.15);
+}
+
+.theme-halloween .app-btn.primary {
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  box-shadow: 0 4px 15px rgba(249,115,22,0.25), 0 0 25px rgba(168,85,247,0.1);
+}
+
+.theme-halloween .badge.earned { box-shadow: 0 0 15px rgba(249,115,22,0.25); }
+.theme-halloween .insight-card { border-color: rgba(168,85,247,0.15); }
+.theme-halloween .tag-filter-btn.active { background: #f97316; }
+
+/* Spooky purple glow on key elements */
+.theme-halloween .goal-card:hover,
+.theme-halloween .tool-section:hover {
+  box-shadow: 0 0 20px rgba(168,85,247,0.1);
+}
+
+/* ============================================================
+   🐣 EASTER — Soft pastels, egg-like rounded shapes, spring vibes
+   ============================================================ */
+.theme-easter {
+  --bg-primary: #fdf4ff;
+  --bg-secondary: rgba(255,255,255,0.8);
+  --bg-tertiary: rgba(0,0,0,0.02);
+  --bg-card: rgba(255,255,255,0.75);
+  --text-primary: #3b0764;
+  --text-secondary: #7e22ce;
+  --text-accent: #a855f7;
+  --accent-primary: #a855f7;
+  --accent-secondary: #ec4899;
+  --accent-gradient: linear-gradient(135deg, #a855f7, #ec4899, #f59e0b);
+  --border-color: rgba(168,85,247,0.12);
+  --shadow-color: rgba(168,85,247,0.08);
+  --theme-bg-image: url('../public/themes/easter/bg.png');
+  --theme-bg-overlay: rgba(253,244,255,0.85);
+}
+
+.theme-easter #bottom-nav { background: rgba(253,244,255,0.92); }
+
+.theme-easter .card {
+  background: linear-gradient(145deg, rgba(253,230,255,0.6), rgba(255,240,230,0.4), rgba(230,255,240,0.4));
+  border: 1px solid rgba(168,85,247,0.1);
+  box-shadow: 0 4px 16px rgba(168,85,247,0.06);
+  border-radius: 20px !important;
+}
+
+.theme-easter .header-title {
+  background: linear-gradient(135deg, #a855f7, #ec4899, #f59e0b, #34d399);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.theme-easter .stat-value {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.theme-easter #app-header {
+  background: linear-gradient(180deg, rgba(236,72,153,0.08), transparent);
+}
+
+.theme-easter .goal-check.checked { background: linear-gradient(135deg, #a855f7, #ec4899); border-color: #a855f7; }
+.theme-easter .circle-progress-ring { stroke: url(#easter-grad); stroke: #a855f7; }
+
+/* Egg-shaped badges */
+.theme-easter .badge {
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  padding: 16px 12px 12px;
+}
+
+.theme-easter .goal-card,
+.theme-easter .tool-section { border-radius: 18px !important; }
+
+.theme-easter .app-btn.primary {
+  background: linear-gradient(135deg, #a855f7, #ec4899) !important;
+  border-radius: 24px !important;
+}
+
+.theme-easter .app-btn { border-radius: 24px !important; }
+.theme-easter .tag-filter-btn { border-radius: 24px; }
+.theme-easter .tag-chip { border-radius: 24px; }
+
+.theme-easter .quote-boost-btn { border-radius: 24px; border-style: dashed; border-color: rgba(168,85,247,0.2); }
+
+/* ============================================================
+   💕 VALENTINES — Sexy red/pink/white, hot gradients, romantic
+   ============================================================ */
+.theme-valentines {
+  --bg-primary: #1a0810;
+  --bg-secondary: rgba(40,12,22,0.88);
+  --bg-tertiary: rgba(0,0,0,0.4);
+  --bg-card: rgba(35,10,20,0.8);
+  --text-primary: #fff1f5;
+  --text-secondary: #c07088;
+  --text-accent: #fb7185;
+  --accent-primary: #e11d48;
+  --accent-secondary: #f472b6;
+  --accent-gradient: linear-gradient(135deg, #e11d48, #ec4899, #f472b6);
+  --border-color: rgba(225,29,72,0.12);
+  --shadow-color: rgba(225,29,72,0.15);
+  --theme-bg-image: url('../public/themes/valentines/bg.png');
+  --theme-bg-overlay: rgba(26,8,16,0.82);
+}
+
+.theme-valentines .card {
+  background: linear-gradient(160deg, rgba(225,29,72,0.1), rgba(244,114,182,0.05), rgba(251,113,133,0.08));
+  border: 1px solid rgba(225,29,72,0.1);
+  box-shadow: 0 4px 20px rgba(225,29,72,0.08), 0 0 60px rgba(244,114,182,0.03);
+}
+
+.theme-valentines .header-title {
+  background: linear-gradient(135deg, #fff, #fda4af, #fb7185, #e11d48);
+  -webkit-background-clip: text; background-clip: text;
+  text-shadow: 0 0 40px rgba(225,29,72,0.4);
+}
+
+.theme-valentines .stat-value {
+  background: linear-gradient(135deg, #fff1f5, #fda4af);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.theme-valentines #app-header {
+  background: linear-gradient(180deg, rgba(225,29,72,0.2), rgba(244,114,182,0.08), transparent);
+}
+
+.theme-valentines #bottom-nav {
+  background: linear-gradient(180deg, rgba(26,8,16,0.85), rgba(40,10,20,0.95));
+  border-top: 1px solid rgba(244,114,182,0.1);
+}
+
+.theme-valentines .nav-btn.active { color: #fb7185; }
+.theme-valentines .nav-btn.active::before { background: linear-gradient(90deg, #e11d48, #f472b6); }
+
+.theme-valentines .goal-check.checked {
+  background: linear-gradient(135deg, #e11d48, #ec4899);
+  border-color: #e11d48;
+  box-shadow: 0 0 10px rgba(225,29,72,0.4);
+}
+
+.theme-valentines .circle-progress-ring { stroke: #e11d48; }
+
+.theme-valentines .quote-boost-reveal {
+  background: linear-gradient(135deg, rgba(225,29,72,0.15), rgba(244,114,182,0.1), rgba(255,255,255,0.03));
+  border-color: rgba(244,114,182,0.15);
+}
+
+.theme-valentines .quote-boost-btn {
+  border-color: rgba(244,114,182,0.2);
+  color: #f472b6;
+}
+
+.theme-valentines .app-btn.primary {
+  background: linear-gradient(135deg, #e11d48, #ec4899, #f472b6) !important;
+  box-shadow: 0 4px 20px rgba(225,29,72,0.3), 0 0 30px rgba(244,114,182,0.15);
+}
+
+.theme-valentines .badge.earned {
+  box-shadow: 0 0 20px rgba(225,29,72,0.2), 0 0 40px rgba(244,114,182,0.1);
+}
+
+.theme-valentines .goal-card {
+  border-left: 3px solid rgba(225,29,72,0.2);
+}
+
+.theme-valentines .insight-card {
+  border-left-color: rgba(244,114,182,0.3);
+}
+
+.theme-valentines .tag-filter-btn.active {
+  background: linear-gradient(135deg, #e11d48, #ec4899);
+}
+
+.theme-valentines .counter-btn.plus {
+  border-color: #e11d48;
+  background: rgba(225,29,72,0.15);
+}
+
+.theme-valentines .star-btn.active { color: #e11d48; }
+
+/* Romantic glow on hover */
+.theme-valentines .goal-card:hover,
+.theme-valentines .card:hover {
+  box-shadow: 0 4px 25px rgba(225,29,72,0.1), 0 0 50px rgba(244,114,182,0.05);
+}
+
+/* Sexy gradient accent line at top of page */
+.theme-valentines #app-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e11d48, #ec4899, #f472b6, transparent);
+}
+
+/* ---- CUSTOM ---- */
+.theme-custom {
+  --theme-bg-image: url('../public/themes/custom/bg.png');
+  --theme-bg-overlay: rgba(0,0,0,0.7);
+}

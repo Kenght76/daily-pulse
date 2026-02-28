@@ -1,0 +1,216 @@
+{
+  "appInfo": {
+    "name": "Daily Pulse",
+    "version": "1.0.0",
+    "description": "Your daily wellness tracker"
+  },
+
+  "labels": {
+    "appTitle": "Daily Pulse",
+    "appTagline": "Your daily wellness tracker",
+
+    "navHome": "Home",
+    "navWeight": "Weight",
+    "navGoals": "Goals",
+    "navStats": "Stats",
+    "navAwards": "Awards",
+    "navQuotes": "Quotes",
+
+    "todayProgress": "Today's Progress",
+    "dailyCheckin": "Daily Check-in",
+    "logWeight": "Log Today's Weight",
+    "logWeightBtn": "Log",
+    "weightPlaceholder": "e.g. 185.5",
+    "weightUnit": "lbs",
+    "weightStart": "Start",
+    "weightCurrent": "Current",
+    "weightLost": "Lost",
+    "weightTrend": "Weight Trend",
+    "weightHistory": "History",
+    "weightLogged": "Weight logged! 💪",
+    "weightInvalid": "Enter a valid weight",
+
+    "goalsTitle": "My Goals",
+    "goalsMax": "Max 10 active goals!",
+    "goalsAdded": "Goal added! 🎯",
+    "goalsRemoved": "Goal removed",
+    "addGoalBtn": "+ Add Goal",
+    "addGoalTitle": "Add New Goal",
+    "addGoalPlaceholder": "Goal name...",
+    "addGoalIconLabel": "Choose Icon:",
+    "addGoalCancel": "Cancel",
+    "addGoalConfirm": "Add Goal",
+    "goalsDone": "Goals Done",
+    "dayStreak": "Day Streak",
+    "streakLabel": "Streak",
+    "bestLabel": "Best",
+    "thirtyDayRate": "30d Rate",
+    "thirtyDayLabel": "30d",
+
+    "statsTitle": "Overview",
+    "totalCheckins": "Total Check-ins",
+    "avgRate": "Avg 30d Rate",
+    "daysWeighed": "Days Weighed",
+    "lbsLost": "Lbs Lost",
+    "badgesEarned": "Badges Earned",
+    "bestStreak": "Best Streak",
+    "goalLeaderboard": "Goal Leaderboard",
+
+    "awardsWeightTitle": "Weight Milestones",
+    "awardsStreakTitle": "Streak Milestones",
+    "milestoneUnlocked": "🏆 Unlocked:",
+
+    "quotesAffirmation": "✨ Daily Affirmation — tap for new",
+    "quotesTapHint": "TAP ANYWHERE FOR A NEW QUOTE",
+    "quotesCountPrefix": "1 of",
+    "quotesCountSuffix": "affirmations",
+    "quotesRandomBtn": "🎲 Randomize Quote",
+
+    "settingsThemeTitle": "Theme",
+    "settingsBtnStyleTitle": "Button Style",
+    "settingsWeightTitle": "Weight Settings",
+    "settingsStartWeight": "Starting Weight",
+    "settingsGoalWeight": "Goal Weight",
+    "settingsSaveBtn": "Save Settings",
+    "settingsSaved": "Settings saved! ✅",
+    "settingsLabelsTitle": "Custom Labels",
+    "settingsIconsTitle": "Icon Overrides",
+    "settingsSoundsTitle": "Sounds",
+    "settingsSoundsOn": "Sound Effects",
+    "settingsResetTitle": "Reset Data",
+    "settingsResetBtn": "Reset All Data",
+    "settingsResetConfirm": "Are you sure? This cannot be undone.",
+    "settingsExportBtn": "Export Data",
+    "settingsImportBtn": "Import Data"
+  },
+
+  "icons": {
+    "logo": "public/icons/logo.png",
+    "navHome": "public/icons/nav-home.png",
+    "navWeight": "public/icons/nav-weight.png",
+    "navGoals": "public/icons/nav-goals.png",
+    "navStats": "public/icons/nav-stats.png",
+    "navAwards": "public/icons/nav-awards.png",
+    "navQuotes": "public/icons/nav-quotes.png",
+    "checkEmpty": "public/icons/check-empty.png",
+    "checkDone": "public/icons/check-done.png",
+    "streakFire": "public/icons/streak-fire.png",
+    "streakBolt": "public/icons/streak-bolt.png",
+    "streakCrown": "public/icons/streak-crown.png"
+  },
+
+  "goalIcons": [
+    { "icon": "goal-star",     "emoji": "⭐", "label": "Star" },
+    { "icon": "goal-brush",    "emoji": "🪥", "label": "Brush Teeth" },
+    { "icon": "goal-floss",    "emoji": "🦷", "label": "Floss" },
+    { "icon": "goal-clean",    "emoji": "🧹", "label": "Clean" },
+    { "icon": "goal-water",    "emoji": "💧", "label": "Water" },
+    { "icon": "goal-exercise", "emoji": "🏃", "label": "Exercise" },
+    { "icon": "goal-meditate", "emoji": "🧘", "label": "Meditate" },
+    { "icon": "goal-vitamins", "emoji": "💊", "label": "Vitamins" },
+    { "icon": "goal-read",     "emoji": "📚", "label": "Read" },
+    { "icon": "goal-sleep",    "emoji": "🛏️", "label": "Sleep" },
+    { "icon": "goal-journal",  "emoji": "✍️", "label": "Journal" },
+    { "icon": "goal-target",   "emoji": "🎯", "label": "Target" },
+    { "icon": "goal-salad",    "emoji": "🥗", "label": "Eat Healthy" },
+    { "icon": "goal-muscle",   "emoji": "💪", "label": "Strength" },
+    { "icon": "goal-brain",    "emoji": "🧠", "label": "Mind" }
+  ],
+
+  "defaultGoals": [
+    { "name": "Brush Teeth", "icon": "goal-brush", "emoji": "🪥" },
+    { "name": "Floss",       "icon": "goal-floss", "emoji": "🦷" },
+    { "name": "Clean Room",  "icon": "goal-clean", "emoji": "🧹" }
+  ],
+
+  "defaultSettings": {
+    "theme": "default-dark",
+    "buttonStyle": "clean",
+    "startWeight": null,
+    "goalWeight": null,
+    "weightUnit": "lbs",
+    "soundEnabled": false,
+    "customColors": {},
+    "customLabels": {},
+    "iconOverrides": {}
+  },
+
+  "themes": [
+    { "id": "default-dark",  "name": "Dark Mode",   "emoji": "🌙" },
+    { "id": "default-light", "name": "Light Mode",  "emoji": "☀️" },
+    { "id": "metal",         "name": "Metal",       "emoji": "⚙️" },
+    { "id": "glass",         "name": "Glass",       "emoji": "🪟" },
+    { "id": "neon",          "name": "Neon",        "emoji": "💜" },
+    { "id": "christmas",     "name": "Christmas",   "emoji": "🎄" },
+    { "id": "halloween",     "name": "Halloween",   "emoji": "🎃" },
+    { "id": "easter",        "name": "Easter",      "emoji": "🐣" },
+    { "id": "valentines",    "name": "Valentines",  "emoji": "💕" },
+    { "id": "custom",        "name": "Custom",      "emoji": "🎨" }
+  ],
+
+  "buttonStyles": [
+    { "id": "clean", "name": "Clean",        "emoji": "✨" },
+    { "id": "metal", "name": "Metal",        "emoji": "⚙️" },
+    { "id": "glass", "name": "Glass",        "emoji": "🪟" },
+    { "id": "neon",  "name": "Neon",         "emoji": "💜" },
+    { "id": "soft",  "name": "Rounded Soft", "emoji": "🫧" }
+  ],
+
+  "weightMilestones": [
+    { "id": "w5",   "lbs": 5,   "label": "5 lbs Lost",   "tier": "Bronze",   "badge": "public/badges/weight-5.png",   "emoji": "🥉" },
+    { "id": "w10",  "lbs": 10,  "label": "10 lbs Lost",  "tier": "Silver",   "badge": "public/badges/weight-10.png",  "emoji": "🥈" },
+    { "id": "w15",  "lbs": 15,  "label": "15 lbs Lost",  "tier": "Gold",     "badge": "public/badges/weight-15.png",  "emoji": "🏅" },
+    { "id": "w20",  "lbs": 20,  "label": "20 lbs Lost",  "tier": "Gold",     "badge": "public/badges/weight-20.png",  "emoji": "🏆" },
+    { "id": "w25",  "lbs": 25,  "label": "25 lbs Lost",  "tier": "Platinum", "badge": "public/badges/weight-25.png",  "emoji": "💎" },
+    { "id": "w30",  "lbs": 30,  "label": "30 lbs Lost",  "tier": "Platinum", "badge": "public/badges/weight-30.png",  "emoji": "💎" },
+    { "id": "w40",  "lbs": 40,  "label": "40 lbs Lost",  "tier": "Diamond",  "badge": "public/badges/weight-40.png",  "emoji": "👑" },
+    { "id": "w50",  "lbs": 50,  "label": "50 lbs Lost",  "tier": "Diamond",  "badge": "public/badges/weight-50.png",  "emoji": "👑" },
+    { "id": "w75",  "lbs": 75,  "label": "75 lbs Lost",  "tier": "Legend",   "badge": "public/badges/weight-75.png",  "emoji": "🌟" },
+    { "id": "w100", "lbs": 100, "label": "100 lbs Lost", "tier": "Legend",   "badge": "public/badges/weight-100.png", "emoji": "🌟" }
+  ],
+
+  "streakMilestones": [
+    { "id": "s3",   "days": 3,   "label": "3-Day Streak",    "badge": "public/badges/streak-3.png",   "emoji": "🔥" },
+    { "id": "s7",   "days": 7,   "label": "1-Week Streak",   "badge": "public/badges/streak-7.png",   "emoji": "🔥" },
+    { "id": "s14",  "days": 14,  "label": "2-Week Streak",   "badge": "public/badges/streak-14.png",  "emoji": "⚡" },
+    { "id": "s21",  "days": 21,  "label": "21-Day Habit",    "badge": "public/badges/streak-21.png",  "emoji": "⚡" },
+    { "id": "s30",  "days": 30,  "label": "30-Day Warrior",  "badge": "public/badges/streak-30.png",  "emoji": "💪" },
+    { "id": "s60",  "days": 60,  "label": "60-Day Champion", "badge": "public/badges/streak-60.png",  "emoji": "🏆" },
+    { "id": "s90",  "days": 90,  "label": "90-Day Legend",   "badge": "public/badges/streak-90.png",  "emoji": "👑" },
+    { "id": "s180", "days": 180, "label": "Half-Year Hero",  "badge": "public/badges/streak-180.png", "emoji": "🌟" },
+    { "id": "s365", "days": 365, "label": "Year-Long Titan", "badge": "public/badges/streak-365.png", "emoji": "💎" }
+  ],
+
+  "emojiMap": {
+    "fire": "🔥",
+    "bolt": "⚡",
+    "muscle": "💪",
+    "trophy": "🏆",
+    "crown": "👑",
+    "star": "🌟",
+    "diamond": "💎",
+    "check": "✓",
+    "sparkle": "✨",
+    "heart": "❤️",
+    "target": "🎯",
+    "chart": "📊",
+    "scale": "⚖️",
+    "house": "🏠",
+    "quotes": "✨"
+  },
+
+  "_notes": {
+    "howToCustomize": [
+      "All labels in the 'labels' object can be overridden via Settings > Custom Labels.",
+      "All icon paths in 'icons' and 'goalIcons' can be replaced by dropping new PNGs in /public/icons/.",
+      "Badge art can be swapped by replacing files in /public/badges/.",
+      "Theme backgrounds go in /public/themes/{theme-name}/bg.png.",
+      "Custom theme background goes in /public/themes/custom/bg.png.",
+      "Emoji fallbacks display automatically when a PNG icon fails to load.",
+      "To add a new goal icon option, add an entry to 'goalIcons' and place the PNG in /public/icons/."
+    ],
+    "iconNamingConvention": "All icon PNGs use the format: {category}-{name}.png (e.g. goal-brush.png, nav-home.png, badge-bronze.png)",
+    "recommendedIconSize": "64x64 PNG with transparent background for icons, 128x128 for badges",
+    "recommendedBgSize": "1080x1920 PNG or JPG for theme backgrounds"
+  }
+}
