@@ -383,13 +383,26 @@ const Store = (() => {
 
   const resetEverything = () => {
     Object.values(KEYS).forEach(k => localStorage.removeItem(k));
-    // Also clear reminders and budget
+    // Also clear reminders, budget, and tools
     localStorage.removeItem('dp_reminders');
     localStorage.removeItem('dp_dismiss_date');
     localStorage.removeItem('dp_budget');
     localStorage.removeItem('dp_budget_cats');
     localStorage.removeItem('dp_budget_limits');
     localStorage.removeItem('dp_monthly_budget');
+    localStorage.removeItem('dp_savings');
+    localStorage.removeItem('dp_bills');
+    localStorage.removeItem('dp_spend_goals');
+    localStorage.removeItem('dp_grocery');
+    localStorage.removeItem('dp_todos');
+    localStorage.removeItem('dp_dates');
+    localStorage.removeItem('dp_avatar');
+    localStorage.removeItem('dp_challenges');
+    localStorage.removeItem('dp_achievements');
+    localStorage.removeItem('dp_user_name');
+    localStorage.removeItem('dp_avatar');
+    localStorage.removeItem('dp_challenges');
+    localStorage.removeItem('dp_coach_state');
   };
 
   return {

@@ -322,16 +322,23 @@ const UI = (() => {
     const cw=weights.length?weights[weights.length-1].weight:'—';
     const os=goals.length?Math.min(...goals.map(g=>Store.calcStreak(g.log,g.frequency))):0;
     const sleepToday=Store.getSleepByDate(ts);
+    const greeting=(()=>{const h=new Date().getHours();if(todayPct===100)return Motivation.getEncouragement({type:'all_done',todayDone,todayTotal:goals.length});if(todayDone>0)return Motivation.getEncouragement({type:'partial_day',todayDone,todayTotal:goals.length});if(h>=20)return Motivation.getEncouragement({type:'missed_day'});return Motivation.getEncouragement({type:'morning_greeting'});})();
+    const challenges=Motivation.generateChallenges().slice(0,2);
 
     const alerts=Reminders.getPendingAlerts();
     const aHtml=alerts.length?alerts.map(a=>`<div class="alert-banner fade-in" data-alert-id="${a.id}"><span class="alert-icon">${a.icon}</span><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-body">${a.body}</div></div><button class="alert-dismiss" data-dismiss="${a.id}">✕</button></div>`).join(''):'';
 
     container().innerHTML=`${aHtml}
-      <div class="card fade-in"><div class="card-title">Today's Progress</div>
+      <div class="card fade-in dash-greeting-card">
+        <div class="dash-greeting-row">${Motivation.renderAvatarHTML(44)}<div class="dash-greeting"><div class="dash-greeting-msg">${greeting}</div></div><button class="dash-avatar-btn" id="avatar-edit-btn" title="Change avatar">✏️</button></div>
+      </div>
+      <div class="card fade-in" style="animation-delay:0.03s"><div class="card-title">Today's Progress</div>
         <div class="progress-row">${circleProgress(todayPct,80,'Goals')}<div class="stat-block"><div class="stat-value">${cw}</div><div class="stat-label">${Store.getLabel('weightUnit','lbs')}</div></div><div class="stat-block"><div class="stat-value">${os}</div><div class="stat-label">Streak</div></div>
         ${sleepToday?`<div class="stat-block"><div class="stat-value">${sleepToday.hours.toFixed(1)}</div><div class="stat-label">hrs sleep</div></div>`:''}</div></div>
-      <div class="card fade-in" style="animation-delay:0.05s"><div class="card-title">Daily Check-in</div><div id="dash-goals"></div></div>
-      <div class="card fade-in" style="animation-delay:0.1s"><div class="card-title">Log Weight</div><div class="input-row"><input type="number" id="dash-w-in" class="app-input" placeholder="e.g. 185.5" step="0.1"><button class="app-btn primary" id="dash-w-btn">Log</button></div></div>
+      <div class="card fade-in" style="animation-delay:0.06s"><div class="card-title">Daily Check-in</div><div id="dash-goals"></div></div>
+      ${challenges.length?`<div class="card fade-in" style="animation-delay:0.09s"><div class="card-header-row"><div class="card-title">🏆 Challenges</div><button class="app-btn ghost small" id="btn-all-challenges">See All</button></div>
+        ${challenges.map(ch=>{const pct=ch.target>0?Math.min(100,Math.round((ch.current/ch.target)*100)):0;return `<div class="challenge-mini"><div class="challenge-mini-header"><span>${ch.emoji} ${ch.goalEmoji}</span><span class="challenge-diff challenge-${ch.difficulty}">${ch.difficulty}</span></div><div class="challenge-mini-title">${ch.title}</div><div class="challenge-mini-desc">${ch.desc}</div><div class="budget-bar-wrap"><div class="budget-bar-fill" style="width:${pct}%"></div></div></div>`;}).join('')}</div>`:''}
+      <div class="card fade-in" style="animation-delay:0.12s"><div class="card-title">Log Weight</div><div class="input-row"><input type="number" id="dash-w-in" class="app-input" placeholder="e.g. 185.5" step="0.1"><button class="app-btn primary" id="dash-w-btn">Log</button></div></div>
       <div class="quote-boost fade-in" style="animation-delay:0.15s"><button class="quote-boost-btn" id="q-btn">✨ Need a boost?</button><div class="quote-boost-reveal hidden" id="q-reveal"><div class="quote-text" id="q-text">"${Quotes.getRandom()}"</div><div class="quote-boost-hint">Tap for another</div></div></div>`;
 
     const gc=$('#dash-goals');
@@ -342,7 +349,19 @@ const UI = (() => {
       let extra=''; if(counterVal!==null)extra+=`<span class="goal-mini-info">🔄${counterVal}</span>`;if(ratingVal)extra+=`<span class="goal-mini-info">${'★'.repeat(ratingVal)}</span>`;if(isMed)extra+=`<span class="goal-mini-info">💊</span>`;
       const row=document.createElement('div');row.className=`goal-row ${done?'done':''}`;
       row.innerHTML=`<div class="goal-check ${done?'checked':''}" id="chk-${g.id}">${done?'✓':''}</div><span class="goal-icon-wrap">${icon(g.icon,g.emoji,22,g.customIcon)}</span><span class="goal-name">${g.name}</span>${extra}<span class="goal-streak">🔥 ${streak}</span>`;
-      row.querySelector(`#chk-${g.id}`).addEventListener('click',e=>{e.stopPropagation();Store.toggleGoal(g.id);Milestones.checkAll().forEach(b=>toast(`🏆 ${b.label}!`));renderDashboard();});
+      row.querySelector(`#chk-${g.id}`).addEventListener('click',e=>{
+        e.stopPropagation();
+        const wasDone=!!g.log[ts];
+        Store.toggleGoal(g.id);
+        Milestones.checkAll().forEach(b=>toast(`🏆 ${b.label}!`));
+        if(!wasDone){
+          const newStreak=Store.calcStreak(Store.getGoals().find(x=>x.id===g.id).log,g.frequency);
+          const newDone=Store.getActiveGoals().filter(x=>x.log[ts]).length;
+          const msg=newDone===goals.length?Motivation.getEncouragement({type:'all_done',todayDone:newDone,todayTotal:goals.length}):Motivation.getEncouragement({type:'complete_goal',goalName:g.name,streak:newStreak});
+          toast(msg,3000);
+        }
+        renderDashboard();
+      });
       row.addEventListener('click',()=>renderGoalDetail(g.id));
       gc.appendChild(row);
     });
@@ -350,6 +369,29 @@ const UI = (() => {
     $('#dash-w-btn').addEventListener('click',()=>{if(Store.addWeight($('#dash-w-in').value)){toast('Weight logged! 💪');Milestones.checkAll().forEach(b=>toast(`🏆 ${b.label}!`));renderDashboard();}else toast('Enter valid weight');});
     const qb=$('#q-btn'),qr=$('#q-reveal');qb.addEventListener('click',()=>{qb.classList.add('hidden');qr.classList.remove('hidden');});qr.addEventListener('click',()=>{$('#q-text').textContent=`"${Quotes.getRandom()}"`;});
     $$('.alert-dismiss').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();Reminders.dismissAlert(b.dataset.dismiss);b.closest('.alert-banner').remove();}));
+
+    // Avatar editor
+    $('#avatar-edit-btn').addEventListener('click',()=>{
+      const cur=Motivation.getAvatar();
+      openModal(`<div class="modal-title">Choose Your Avatar</div>
+        <div class="modal-section-label">Pick a character:</div>
+        <div class="avatar-grid">${Motivation.AVATARS.map(a=>`<button class="avatar-pick-btn ${cur.id===a.id?'selected':''}" data-id="${a.id}" data-emoji="${a.emoji}">${a.emoji}<span class="avatar-pick-label">${a.name}</span></button>`).join('')}</div>
+        <div class="modal-section-label" style="margin-top:12px">Or type your own emoji:</div>
+        <div class="input-row"><input type="text" class="app-input" id="av-emoji-input" placeholder="😎" maxlength="4" style="width:70px;text-align:center;font-size:22px"><button class="app-btn ghost small" id="av-emoji-use">Use</button></div>
+        <div class="modal-section-label" style="margin-top:12px">Or upload a photo:</div>
+        <div class="input-row"><button class="app-btn ghost small" id="av-upload-btn">📷 Upload Image</button><input type="file" id="av-file-input" accept="image/*" style="display:none"></div>
+        ${cur.customImage?`<div class="avatar-current-preview"><img src="${cur.customImage}" width="48" height="48" style="border-radius:50%;margin-top:8px"></div>`:''}
+        <div class="modal-actions"><button class="app-btn ghost" id="av-cancel">Cancel</button></div>`);
+      $$('.avatar-pick-btn').forEach(b=>b.addEventListener('click',()=>{Motivation.setAvatar({type:'preset',id:b.dataset.id,emoji:b.dataset.emoji,customImage:null});closeModal();renderDashboard();}));
+      $('#av-emoji-use').addEventListener('click',()=>{const e=$('#av-emoji-input').value.trim();if(e){Motivation.setAvatar({type:'emoji',id:'custom',emoji:e,customImage:null});closeModal();renderDashboard();}});
+      $('#av-upload-btn').addEventListener('click',()=>$('#av-file-input').click());
+      $('#av-file-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=96;c.height=96;const ctx=c.getContext('2d');const s=Math.min(img.width,img.height);const sx=(img.width-s)/2,sy=(img.height-s)/2;ctx.beginPath();ctx.arc(48,48,48,0,Math.PI*2);ctx.clip();ctx.drawImage(img,sx,sy,s,s,0,0,96,96);const url=c.toDataURL('image/jpeg',0.8);Motivation.setAvatar({type:'upload',id:'custom',emoji:'📷',customImage:url});closeModal();renderDashboard();};img.src=ev.target.result;};r.readAsDataURL(f);});
+      $('#av-cancel').addEventListener('click',closeModal);
+    });
+
+    // Challenges see-all
+    const cab=$('#btn-all-challenges');
+    if(cab) cab.addEventListener('click',()=>navigate('challenges'));
   };
 
   // ============================================================
@@ -721,38 +763,56 @@ const UI = (() => {
   };
 
   // ============================================================
-  // BUDGET PAGE
+  // BUDGET PAGE (multi-view: Overview, Savings, Bills, Goals)
   // ============================================================
   let _budgetMonth = null;
+  let _budgetView = 'overview';
 
   const renderBudget = () => {
     const month = _budgetMonth || Budget.getMonth();
     _budgetMonth = month;
+    const months = Budget.getAvailableMonths();
+
+    // Sub-nav
+    const subNav = `<div class="card fade-in"><div class="card-header-row"><div class="card-title">💰 Finance</div>
+      <select class="app-input small" id="budget-month-select" style="width:auto;font-size:12px">${months.map(mo => `<option value="${mo}" ${mo === month ? 'selected' : ''}>${new Date(mo + '-15').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</option>`).join('')}</select></div>
+      <div class="budget-sub-nav">
+        <button class="budget-sub-btn ${_budgetView==='overview'?'active':''}" data-bv="overview">💳 Overview</button>
+        <button class="budget-sub-btn ${_budgetView==='savings'?'active':''}" data-bv="savings">🏦 Savings</button>
+        <button class="budget-sub-btn ${_budgetView==='bills'?'active':''}" data-bv="bills">📋 Bills</button>
+        <button class="budget-sub-btn ${_budgetView==='goals'?'active':''}" data-bv="goals">🎯 Goals</button>
+      </div></div>`;
+
+    if (_budgetView === 'savings') { renderBudgetSavings(subNav, month); }
+    else if (_budgetView === 'bills') { renderBudgetBills(subNav, month); }
+    else if (_budgetView === 'goals') { renderBudgetGoals(subNav, month); }
+    else { renderBudgetOverview(subNav, month); }
+
+    // Wire sub-nav and month selector
+    $('#budget-month-select').addEventListener('change', e => { _budgetMonth = e.target.value; renderBudget(); });
+    $$('.budget-sub-btn').forEach(b => b.addEventListener('click', () => { _budgetView = b.dataset.bv; renderBudget(); }));
+  };
+
+  // ---- OVERVIEW SUB-VIEW ----
+  const renderBudgetOverview = (subNav, month) => {
     const summary = Budget.getMonthSummary(month);
     const cats = Budget.getCategories();
     const breakdown = Budget.getCategoryBreakdown(month);
     const txns = Budget.getTransactionsForMonth(month);
     const monthlyBudget = Budget.getMonthlyBudget();
-    const months = Budget.getAvailableMonths();
-
-    const [y, m] = month.split('-');
-    const monthLabel = new Date(+y, +m - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
     const budgetPct = monthlyBudget > 0 ? Math.min(100, Math.round((summary.totalExpense / monthlyBudget) * 100)) : 0;
     const budgetBar = monthlyBudget > 0 ? `<div class="budget-bar-wrap"><div class="budget-bar-fill ${budgetPct > 90 ? 'danger' : budgetPct > 70 ? 'warning' : ''}" style="width:${budgetPct}%"></div></div><div class="budget-bar-label">$${summary.totalExpense.toFixed(2)} of $${monthlyBudget.toFixed(2)} (${budgetPct}%)</div>` : '';
 
-    container().innerHTML = `
-      <div class="card fade-in"><div class="card-header-row"><div class="card-title">💰 Budget</div>
-        <select class="app-input small" id="budget-month-select" style="width:auto;font-size:12px">${months.map(mo => `<option value="${mo}" ${mo === month ? 'selected' : ''}>${new Date(mo + '-15').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</option>`).join('')}</select></div>
-        <div class="budget-month-label">${monthLabel}</div>
+    container().innerHTML = `${subNav}
+      <div class="card fade-in" style="animation-delay:0.03s">
         <div class="stats-grid cols-3">
           <div class="stat-block"><div class="stat-value" style="color:#10b981">$${summary.totalIncome.toFixed(0)}</div><div class="stat-label">Income</div></div>
           <div class="stat-block"><div class="stat-value" style="color:#ef4444">$${summary.totalExpense.toFixed(0)}</div><div class="stat-label">Expenses</div></div>
           <div class="stat-block"><div class="stat-value" style="color:${summary.net >= 0 ? '#10b981' : '#ef4444'}">$${summary.net.toFixed(0)}</div><div class="stat-label">Net</div></div>
-        </div>
-        ${budgetBar}
+        </div>${budgetBar}
       </div>
-      <div class="card fade-in" style="animation-delay:0.05s"><div class="card-header-row"><div class="card-title">Add Transaction</div></div>
+      <div class="card fade-in" style="animation-delay:0.06s"><div class="card-header-row"><div class="card-title">Add Transaction</div><button class="app-btn ghost small" id="budget-settings-btn">⚙️</button></div>
         <div class="budget-add-row">
           <select class="app-input small" id="txn-type" style="width:auto"><option value="expense">Expense</option><option value="income">Income</option></select>
           <input type="number" class="app-input small" id="txn-amount" placeholder="$0.00" step="0.01" style="width:90px">
@@ -764,70 +824,649 @@ const UI = (() => {
           <button class="app-btn primary small" id="txn-add-btn">+ Add</button>
         </div>
       </div>
-      ${breakdown.length ? `<div class="card fade-in" style="animation-delay:0.1s"><div class="card-title">Spending Breakdown</div>
-        <div class="budget-breakdown">${breakdown.map(c => `
-          <div class="budget-cat-row">
-            <span class="budget-cat-emoji">${c.emoji}</span>
-            <span class="budget-cat-name">${c.name}</span>
-            <div class="budget-cat-bar-wrap"><div class="budget-cat-bar" style="width:${c.percent}%;background:${c.color}"></div></div>
-            <span class="budget-cat-amount">$${c.amount.toFixed(0)}</span>
-            <span class="budget-cat-pct">${c.percent}%</span>
-          </div>`).join('')}
-        </div></div>` : ''}
-      <div class="card fade-in" style="animation-delay:0.15s"><div class="card-header-row"><div class="card-title">Transactions (${txns.length})</div>
-        <button class="app-btn ghost small" id="budget-settings-btn">⚙️</button></div>
+      ${breakdown.length ? `<div class="card fade-in" style="animation-delay:0.09s"><div class="card-title">Spending Breakdown</div>
+        <div class="budget-breakdown">${breakdown.map(c => `<div class="budget-cat-row"><span class="budget-cat-emoji">${c.emoji}</span><span class="budget-cat-name">${c.name}</span><div class="budget-cat-bar-wrap"><div class="budget-cat-bar" style="width:${c.percent}%;background:${c.color}"></div></div><span class="budget-cat-amount">$${c.amount.toFixed(0)}</span><span class="budget-cat-pct">${c.percent}%</span></div>`).join('')}</div></div>` : ''}
+      <div class="card fade-in" style="animation-delay:0.12s"><div class="card-title">Transactions (${txns.length})</div>
         <div id="txn-list" class="history-list">${txns.length ? txns.map(t => {
           const cat = cats.find(c => c.id === t.categoryId);
           return `<div class="txn-row ${t.type}"><div class="txn-row-left"><span class="txn-emoji">${cat ? cat.emoji : '📦'}</span><div><div class="txn-note">${t.note || (cat ? cat.name : 'Transaction')}</div><div class="txn-date">${fmtDate(t.date)}</div></div></div><div class="txn-row-right"><span class="txn-amount ${t.type}">${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}</span><button class="txn-delete-btn" data-id="${t.id}">×</button></div></div>`;
         }).join('') : '<div style="text-align:center;color:var(--text-secondary);padding:16px">No transactions this month</div>'}</div>
       </div>`;
 
-    // Month selector
-    $('#budget-month-select').addEventListener('change', e => { _budgetMonth = e.target.value; renderBudget(); });
-
-    // Type toggle updates category dropdown
     const typeSelect = $('#txn-type'), catSelect = $('#txn-cat');
     typeSelect.addEventListener('change', () => {
-      const type = typeSelect.value;
-      catSelect.innerHTML = cats.filter(c => c.type === type).map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+      catSelect.innerHTML = Budget.getCategories().filter(c => c.type === typeSelect.value).map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
     });
-
-    // Add transaction
     $('#txn-add-btn').addEventListener('click', () => {
       const amount = parseFloat($('#txn-amount').value);
       if (!amount || amount <= 0) { toast('Enter an amount'); return; }
-      Budget.addTransaction({
-        type: typeSelect.value,
-        amount,
-        categoryId: catSelect.value,
-        note: $('#txn-note').value.trim(),
-        date: $('#txn-date').value
+      Budget.addTransaction({ type: typeSelect.value, amount, categoryId: catSelect.value, note: $('#txn-note').value.trim(), date: $('#txn-date').value });
+      toast(`${typeSelect.value === 'income' ? '+' : '-'}$${amount.toFixed(2)} added!`); renderBudget();
+    });
+    $$('.txn-delete-btn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); Budget.removeTransaction(b.dataset.id); toast('Deleted'); renderBudget(); }));
+
+    const bsBtn = $('#budget-settings-btn');
+    if (bsBtn) bsBtn.addEventListener('click', () => {
+      const mb = Budget.getMonthlyBudget();
+      openModal(`<div class="modal-title">💰 Budget Settings</div>
+        <div class="modal-section-label">Monthly Budget Limit:</div>
+        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="budget-limit-input" value="${mb || ''}" placeholder="0.00" step="0.01"></div>
+        <div class="modal-actions"><button class="app-btn ghost" id="bs-cancel">Cancel</button><button class="app-btn primary" id="bs-save">Save</button></div>`);
+      $('#bs-cancel').addEventListener('click', closeModal);
+      $('#bs-save').addEventListener('click', () => { Budget.setMonthlyBudget(parseFloat($('#budget-limit-input').value) || 0); closeModal(); toast('Budget updated! 💰'); renderBudget(); });
+    });
+  };
+
+  // ---- SAVINGS SUB-VIEW ----
+  const renderBudgetSavings = (subNav, month) => {
+    const accounts = Budget.getSavingsAccounts();
+    const summary = Budget.getSavingsSummary();
+    const year = Store.today().slice(0, 4);
+
+    container().innerHTML = `${subNav}
+      <div class="card fade-in" style="animation-delay:0.03s">
+        <div class="stats-grid cols-3">
+          <div class="stat-block"><div class="stat-value" style="color:#10b981">$${summary.totalBalance.toLocaleString()}</div><div class="stat-label">Total Saved</div></div>
+          <div class="stat-block"><div class="stat-value">$${summary.monthContributions.toLocaleString()}</div><div class="stat-label">This Month</div></div>
+          <div class="stat-block"><div class="stat-value">$${summary.yearContributions.toLocaleString()}</div><div class="stat-label">${year} Total</div></div>
+        </div>
+      </div>
+      ${accounts.map((a, i) => {
+        const pct = a.targetAmount > 0 ? Math.min(100, Math.round((a.balance / a.targetAmount) * 100)) : 0;
+        const moCtr = Budget.getMonthlyContribution(a.id, month);
+        const yrCtr = Budget.getYearlyContribution(a.id, year);
+        const moGoalPct = a.monthlyGoal > 0 ? Math.min(100, Math.round((moCtr / a.monthlyGoal) * 100)) : 0;
+        const yrGoalPct = a.yearlyGoal > 0 ? Math.min(100, Math.round((yrCtr / a.yearlyGoal) * 100)) : 0;
+        return `<div class="card fade-in savings-card" style="animation-delay:${0.06 + i * 0.03}s;border-left:4px solid ${a.color}">
+          <div class="card-header-row"><div class="card-title">${a.emoji} ${a.name}</div>
+            <div class="stat-btn-row"><button class="app-btn ghost small sav-contribute-btn" data-id="${a.id}">+ Add</button><button class="app-btn ghost small sav-edit-btn" data-id="${a.id}">✏️</button></div></div>
+          <div class="stat-value" style="font-size:22px;margin:8px 0">$${a.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+          ${a.targetAmount > 0 ? `<div class="budget-bar-wrap"><div class="budget-bar-fill" style="width:${pct}%;background:${a.color}"></div></div><div class="budget-bar-label">$${a.balance.toLocaleString()} of $${a.targetAmount.toLocaleString()} goal (${pct}%)${a.targetDate ? ' • by ' + fmtDate(a.targetDate) : ''}</div>` : ''}
+          <div class="savings-goals-row">
+            ${a.monthlyGoal > 0 ? `<div class="savings-mini-goal"><div class="savings-mini-label">Monthly: $${moCtr.toFixed(0)} / $${a.monthlyGoal.toFixed(0)}</div><div class="savings-mini-bar"><div class="savings-mini-fill ${moGoalPct >= 100 ? 'complete' : ''}" style="width:${moGoalPct}%;background:${a.color}"></div></div></div>` : ''}
+            ${a.yearlyGoal > 0 ? `<div class="savings-mini-goal"><div class="savings-mini-label">Yearly: $${yrCtr.toFixed(0)} / $${a.yearlyGoal.toFixed(0)}</div><div class="savings-mini-bar"><div class="savings-mini-fill ${yrGoalPct >= 100 ? 'complete' : ''}" style="width:${yrGoalPct}%;background:${a.color}"></div></div></div>` : ''}
+          </div>
+          ${(a.contributions || []).length ? `<div class="savings-recent"><div class="savings-recent-title">Recent</div>${a.contributions.slice(0, 5).map(c => `<div class="history-row"><span class="history-date">${fmtDate(c.date)}</span><span class="history-value" style="color:#10b981">+$${c.amount.toFixed(2)}${c.note ? ' • ' + c.note : ''}</span></div>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('')}
+      <div class="card fade-in" style="animation-delay:0.2s"><button class="app-btn primary full-width" id="sav-add-acct-btn">+ New Savings Account</button></div>`;
+
+    // Add account
+    $('#sav-add-acct-btn').addEventListener('click', () => {
+      openModal(`<div class="modal-title">🏦 New Savings Account</div>
+        <div class="modal-section-label">Account Type:</div>
+        <select class="app-input" id="sav-type">${Budget.SAVINGS_TYPES.map(t => `<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('')}</select>
+        <div class="modal-section-label">Custom Name (optional):</div>
+        <input type="text" class="app-input" id="sav-name" placeholder="e.g. Vanguard 401k" maxlength="40">
+        <div class="modal-section-label">Current Balance:</div>
+        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="sav-balance" placeholder="0.00" step="0.01"></div>
+        <div class="modal-section-label">Target Amount (optional):</div>
+        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="sav-target" placeholder="e.g. 50000" step="1"></div>
+        <div class="modal-section-label">Target Date (optional):</div>
+        <input type="date" class="app-input" id="sav-target-date">
+        <div class="modal-section-label">Monthly Contribution Goal:</div>
+        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="sav-monthly" placeholder="e.g. 500" step="1"></div>
+        <div class="modal-section-label">Yearly Contribution Goal:</div>
+        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="sav-yearly" placeholder="e.g. 6000" step="1"></div>
+        <div class="modal-actions"><button class="app-btn ghost" id="sav-cancel">Cancel</button><button class="app-btn primary" id="sav-create">Create</button></div>`);
+      $('#sav-cancel').addEventListener('click', closeModal);
+      $('#sav-create').addEventListener('click', () => {
+        const type = $('#sav-type').value;
+        const typeInfo = Budget.SAVINGS_TYPES.find(t => t.id === type);
+        Budget.addSavingsAccount({
+          type, name: $('#sav-name').value.trim() || typeInfo.name,
+          balance: parseFloat($('#sav-balance').value) || 0,
+          targetAmount: parseFloat($('#sav-target').value) || 0,
+          targetDate: $('#sav-target-date').value || '',
+          monthlyGoal: parseFloat($('#sav-monthly').value) || 0,
+          yearlyGoal: parseFloat($('#sav-yearly').value) || 0
+        });
+        closeModal(); toast('Account created! 🏦'); renderBudget();
       });
-      toast(`${typeSelect.value === 'income' ? '+' : '-'}$${amount.toFixed(2)} added!`);
-      renderBudget();
     });
 
-    // Delete transactions
-    $$('.txn-delete-btn').forEach(b => b.addEventListener('click', e => {
+    // Contribute
+    $$('.sav-contribute-btn').forEach(b => b.addEventListener('click', e => {
       e.stopPropagation();
-      Budget.removeTransaction(b.dataset.id);
-      toast('Deleted');
+      const id = b.dataset.id;
+      openModal(`<div class="modal-title">💰 Add Contribution</div>
+        <div class="modal-section-label">Amount:</div>
+        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="ctr-amount" placeholder="0.00" step="0.01"></div>
+        <div class="modal-section-label">Note (optional):</div>
+        <input type="text" class="app-input" id="ctr-note" placeholder="e.g. Paycheck deposit" maxlength="50">
+        <div class="modal-section-label">Date:</div>
+        <input type="date" class="app-input" id="ctr-date" value="${Store.today()}">
+        <div class="modal-actions"><button class="app-btn ghost" id="ctr-cancel">Cancel</button><button class="app-btn primary" id="ctr-save">Add</button></div>`);
+      $('#ctr-cancel').addEventListener('click', closeModal);
+      $('#ctr-save').addEventListener('click', () => {
+        const amt = parseFloat($('#ctr-amount').value);
+        if (!amt) { toast('Enter an amount'); return; }
+        Budget.addContribution(id, amt, $('#ctr-note').value, $('#ctr-date').value);
+        closeModal(); toast(`+$${amt.toFixed(2)} contributed! 🏦`); renderBudget();
+      });
+    }));
+
+    // Edit / delete account
+    $$('.sav-edit-btn').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      const acct = Budget.getSavingsAccounts().find(a => a.id === b.dataset.id);
+      if (!acct) return;
+      openModal(`<div class="modal-title">✏️ Edit ${acct.name}</div>
+        <div class="modal-section-label">Name:</div><input type="text" class="app-input" id="se-name" value="${acct.name}" maxlength="40">
+        <div class="modal-section-label">Current Balance:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="se-balance" value="${acct.balance}" step="0.01"></div>
+        <div class="modal-section-label">Target Amount:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="se-target" value="${acct.targetAmount || ''}" step="1"></div>
+        <div class="modal-section-label">Target Date:</div><input type="date" class="app-input" id="se-date" value="${acct.targetDate || ''}">
+        <div class="modal-section-label">Monthly Goal:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="se-monthly" value="${acct.monthlyGoal || ''}" step="1"></div>
+        <div class="modal-section-label">Yearly Goal:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="se-yearly" value="${acct.yearlyGoal || ''}" step="1"></div>
+        <div class="modal-actions"><button class="app-btn ghost danger-btn" id="se-delete">Delete</button><button class="app-btn ghost" id="se-cancel">Cancel</button><button class="app-btn primary" id="se-save">Save</button></div>`);
+      $('#se-cancel').addEventListener('click', closeModal);
+      $('#se-delete').addEventListener('click', () => { Budget.removeSavingsAccount(acct.id); closeModal(); toast('Deleted'); renderBudget(); });
+      $('#se-save').addEventListener('click', () => {
+        Budget.updateSavingsAccount(acct.id, {
+          name: $('#se-name').value.trim(), balance: parseFloat($('#se-balance').value) || 0,
+          targetAmount: parseFloat($('#se-target').value) || 0, targetDate: $('#se-date').value || '',
+          monthlyGoal: parseFloat($('#se-monthly').value) || 0, yearlyGoal: parseFloat($('#se-yearly').value) || 0
+        });
+        closeModal(); toast('Updated! ✅'); renderBudget();
+      });
+    }));
+  };
+
+  // ---- BILLS SUB-VIEW ----
+  const renderBudgetBills = (subNav, month) => {
+    const billsSummary = Budget.getBillsSummary(month);
+    const allBills = Budget.getBills();
+
+    container().innerHTML = `${subNav}
+      <div class="card fade-in" style="animation-delay:0.03s">
+        <div class="stats-grid cols-3">
+          <div class="stat-block"><div class="stat-value">${billsSummary.paidCount}/${billsSummary.totalCount}</div><div class="stat-label">Bills Paid</div></div>
+          <div class="stat-block"><div class="stat-value" style="color:#10b981">$${billsSummary.paidTotal.toFixed(0)}</div><div class="stat-label">Paid</div></div>
+          <div class="stat-block"><div class="stat-value" style="color:#ef4444">$${(billsSummary.total - billsSummary.paidTotal).toFixed(0)}</div><div class="stat-label">Remaining</div></div>
+        </div>
+        <div class="budget-bar-wrap" style="margin-top:12px"><div class="budget-bar-fill" style="width:${billsSummary.totalCount > 0 ? Math.round((billsSummary.paidCount / billsSummary.totalCount) * 100) : 0}%"></div></div>
+      </div>
+      ${billsSummary.upcoming.length ? `<div class="card fade-in" style="animation-delay:0.06s"><div class="card-title">⏰ Upcoming</div>
+        ${billsSummary.upcoming.map(b => `<div class="bill-row unpaid" data-id="${b.id}">
+          <div class="bill-check" data-id="${b.id}"></div>
+          <div class="bill-info"><div class="bill-name">${b.emoji} ${b.name}</div><div class="bill-meta">Due ${b.dueDay}${['st','nd','rd'][b.dueDay-1]||'th'} • ${b.daysUntil === 0 ? 'Today!' : b.daysUntil === 1 ? 'Tomorrow' : b.daysUntil + ' days'}</div></div>
+          <div class="bill-amount">$${b.amount.toFixed(2)}</div>
+        </div>`).join('')}</div>` : ''}
+      <div class="card fade-in" style="animation-delay:0.09s"><div class="card-title">All Bills</div>
+        ${allBills.length ? allBills.map(b => {
+          const paid = Budget.isBillPaid(b.id, month);
+          return `<div class="bill-row ${paid ? 'paid' : ''}" data-id="${b.id}">
+            <div class="bill-check ${paid ? 'checked' : ''}" data-id="${b.id}">${paid ? '✓' : ''}</div>
+            <div class="bill-info"><div class="bill-name">${b.emoji} ${b.name}${b.autoPay ? ' <span class="bill-auto">Auto</span>' : ''}</div>
+              <div class="bill-meta">${b.frequency} • Due ${b.dueDay}${['st','nd','rd'][b.dueDay-1]||'th'}</div></div>
+            <div class="bill-amount">$${b.amount.toFixed(2)}</div>
+            <button class="bill-edit-btn" data-id="${b.id}">✏️</button>
+          </div>`;
+        }).join('') : '<div style="text-align:center;color:var(--text-secondary);padding:16px">No bills yet</div>'}
+      </div>
+      <div class="card fade-in" style="animation-delay:0.12s"><button class="app-btn primary full-width" id="bill-add-btn">+ Add Bill</button></div>`;
+
+    // Toggle paid
+    $$('.bill-check').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      Budget.toggleBillPaid(b.dataset.id, month);
       renderBudget();
     }));
 
-    // Budget settings modal
-    const bsBtn = $('#budget-settings-btn');
-    if (bsBtn) bsBtn.addEventListener('click', () => {
-      openModal(`<div class="modal-title">💰 Budget Settings</div>
-        <div class="modal-section-label">Monthly Budget Limit:</div>
-        <div class="input-row"><span style="color:var(--text-secondary)">$</span><input type="number" class="app-input" id="budget-limit-input" value="${monthlyBudget || ''}" placeholder="0.00" step="0.01"></div>
-        <div class="modal-actions"><button class="app-btn ghost" id="bs-cancel">Cancel</button><button class="app-btn primary" id="bs-save">Save</button></div>`);
-      $('#bs-cancel').addEventListener('click', closeModal);
-      $('#bs-save').addEventListener('click', () => {
-        Budget.setMonthlyBudget(parseFloat($('#budget-limit-input').value) || 0);
-        closeModal(); toast('Budget updated! 💰'); renderBudget();
+    // Add bill
+    $('#bill-add-btn').addEventListener('click', () => {
+      openModal(`<div class="modal-title">📋 Add Bill</div>
+        <div class="modal-section-label">Name:</div><input type="text" class="app-input" id="bl-name" placeholder="e.g. Netflix" maxlength="40">
+        <div class="modal-section-label">Amount:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="bl-amount" placeholder="0.00" step="0.01"></div>
+        <div class="modal-section-label">Due Day of Month:</div><input type="number" class="app-input" id="bl-day" value="1" min="1" max="31" style="width:80px">
+        <div class="modal-section-label">Frequency:</div>
+        <select class="app-input" id="bl-freq"><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select>
+        <div class="modal-section-label">Emoji:</div><input type="text" class="app-input small" id="bl-emoji" value="💡" maxlength="4" style="width:60px;text-align:center;font-size:18px">
+        <label class="tool-pick-item" style="margin-top:8px"><input type="checkbox" id="bl-auto"><span class="tool-pick-label">Auto-pay enabled</span></label>
+        <div class="modal-actions"><button class="app-btn ghost" id="bl-cancel">Cancel</button><button class="app-btn primary" id="bl-save">Add Bill</button></div>`);
+      $('#bl-cancel').addEventListener('click', closeModal);
+      $('#bl-save').addEventListener('click', () => {
+        const name = $('#bl-name').value.trim();
+        if (!name) { toast('Enter a name'); return; }
+        Budget.addBill({ name, amount: parseFloat($('#bl-amount').value) || 0, dueDay: parseInt($('#bl-day').value) || 1, frequency: $('#bl-freq').value, emoji: $('#bl-emoji').value || '💡', autoPay: $('#bl-auto').checked });
+        closeModal(); toast('Bill added! 📋'); renderBudget();
       });
     });
+
+    // Edit bill
+    $$('.bill-edit-btn').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      const bill = Budget.getBills().find(bl => bl.id === b.dataset.id);
+      if (!bill) return;
+      openModal(`<div class="modal-title">✏️ Edit Bill</div>
+        <div class="modal-section-label">Name:</div><input type="text" class="app-input" id="be-name" value="${bill.name}" maxlength="40">
+        <div class="modal-section-label">Amount:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="be-amount" value="${bill.amount}" step="0.01"></div>
+        <div class="modal-section-label">Due Day:</div><input type="number" class="app-input" id="be-day" value="${bill.dueDay}" min="1" max="31" style="width:80px">
+        <div class="modal-section-label">Frequency:</div>
+        <select class="app-input" id="be-freq"><option value="monthly" ${bill.frequency==='monthly'?'selected':''}>Monthly</option><option value="quarterly" ${bill.frequency==='quarterly'?'selected':''}>Quarterly</option><option value="yearly" ${bill.frequency==='yearly'?'selected':''}>Yearly</option></select>
+        <div class="modal-section-label">Emoji:</div><input type="text" class="app-input small" id="be-emoji" value="${bill.emoji}" maxlength="4" style="width:60px;text-align:center;font-size:18px">
+        <label class="tool-pick-item" style="margin-top:8px"><input type="checkbox" id="be-auto" ${bill.autoPay?'checked':''}><span class="tool-pick-label">Auto-pay enabled</span></label>
+        <div class="modal-actions"><button class="app-btn ghost danger-btn" id="be-delete">Delete</button><button class="app-btn ghost" id="be-cancel">Cancel</button><button class="app-btn primary" id="be-save">Save</button></div>`);
+      $('#be-cancel').addEventListener('click', closeModal);
+      $('#be-delete').addEventListener('click', () => { Budget.removeBill(bill.id); closeModal(); toast('Deleted'); renderBudget(); });
+      $('#be-save').addEventListener('click', () => {
+        Budget.updateBill(bill.id, { name: $('#be-name').value.trim(), amount: parseFloat($('#be-amount').value) || 0, dueDay: parseInt($('#be-day').value) || 1, frequency: $('#be-freq').value, emoji: $('#be-emoji').value || '💡', autoPay: $('#be-auto').checked });
+        closeModal(); toast('Updated! ✅'); renderBudget();
+      });
+    }));
+  };
+
+  // ---- SPENDING GOALS SUB-VIEW ----
+  const renderBudgetGoals = (subNav, month) => {
+    const goalStatus = Budget.getSpendingGoalStatus(month);
+    const cats = Budget.getCategories().filter(c => c.type === 'expense');
+
+    container().innerHTML = `${subNav}
+      <div class="card fade-in" style="animation-delay:0.03s"><div class="card-header-row"><div class="card-title">🎯 Spending Goals</div><button class="app-btn primary small" id="sg-add-btn">+ Add</button></div>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Set monthly and yearly limits per category</p>
+        ${goalStatus.length ? goalStatus.map(g => `<div class="spend-goal-card">
+          <div class="spend-goal-header"><span>${g.emoji} ${g.name}</span><button class="spend-goal-edit" data-cat="${g.categoryId}">✏️</button></div>
+          ${g.monthlyLimit > 0 ? `<div class="spend-goal-row"><span class="spend-goal-label">Monthly</span><span class="spend-goal-vals ${g.monthPct > 100 ? 'over' : g.monthPct > 80 ? 'warn' : ''}">$${g.monthSpent.toFixed(0)} / $${g.monthlyLimit.toFixed(0)}</span></div>
+            <div class="budget-bar-wrap"><div class="budget-bar-fill ${g.monthPct > 100 ? 'danger' : g.monthPct > 80 ? 'warning' : ''}" style="width:${Math.min(100, g.monthPct)}%;background:${g.color}"></div></div>` : ''}
+          ${g.yearlyLimit > 0 ? `<div class="spend-goal-row" style="margin-top:8px"><span class="spend-goal-label">Yearly</span><span class="spend-goal-vals ${g.yearPct > 100 ? 'over' : g.yearPct > 80 ? 'warn' : ''}">$${g.yearSpent.toFixed(0)} / $${g.yearlyLimit.toFixed(0)}</span></div>
+            <div class="budget-bar-wrap"><div class="budget-bar-fill ${g.yearPct > 100 ? 'danger' : g.yearPct > 80 ? 'warning' : ''}" style="width:${Math.min(100, g.yearPct)}%;background:${g.color}80"></div></div>` : ''}
+        </div>`).join('') : '<div style="text-align:center;color:var(--text-secondary);padding:20px">No spending goals set yet. Tap + Add to create one!</div>'}
+      </div>`;
+
+    // Add spending goal
+    $('#sg-add-btn').addEventListener('click', () => {
+      const existing = Budget.getSpendingGoals();
+      const available = cats.filter(c => !existing[c.id]);
+      if (!available.length) { toast('All categories have goals!'); return; }
+      openModal(`<div class="modal-title">🎯 New Spending Goal</div>
+        <div class="modal-section-label">Category:</div>
+        <select class="app-input" id="sg-cat">${available.map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('')}</select>
+        <div class="modal-section-label">Monthly Limit:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="sg-monthly" placeholder="e.g. 200" step="1"></div>
+        <div class="modal-section-label">Yearly Limit:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="sg-yearly" placeholder="e.g. 2400" step="1"></div>
+        <div class="modal-actions"><button class="app-btn ghost" id="sg-cancel">Cancel</button><button class="app-btn primary" id="sg-save">Create</button></div>`);
+      $('#sg-cancel').addEventListener('click', closeModal);
+      $('#sg-save').addEventListener('click', () => {
+        Budget.setSpendingGoal($('#sg-cat').value, parseFloat($('#sg-monthly').value) || 0, parseFloat($('#sg-yearly').value) || 0);
+        closeModal(); toast('Goal set! 🎯'); renderBudget();
+      });
+    });
+
+    // Edit spending goal
+    $$('.spend-goal-edit').forEach(b => b.addEventListener('click', () => {
+      const catId = b.dataset.cat;
+      const goal = Budget.getSpendingGoals()[catId] || {};
+      const cat = cats.find(c => c.id === catId) || { name: 'Unknown', emoji: '❓' };
+      openModal(`<div class="modal-title">✏️ ${cat.emoji} ${cat.name}</div>
+        <div class="modal-section-label">Monthly Limit:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="sge-monthly" value="${goal.monthly || ''}" step="1"></div>
+        <div class="modal-section-label">Yearly Limit:</div><div class="input-row"><span>$</span><input type="number" class="app-input" id="sge-yearly" value="${goal.yearly || ''}" step="1"></div>
+        <div class="modal-actions"><button class="app-btn ghost danger-btn" id="sge-delete">Remove</button><button class="app-btn ghost" id="sge-cancel">Cancel</button><button class="app-btn primary" id="sge-save">Save</button></div>`);
+      $('#sge-cancel').addEventListener('click', closeModal);
+      $('#sge-delete').addEventListener('click', () => { Budget.setSpendingGoal(catId, 0, 0); closeModal(); toast('Removed'); renderBudget(); });
+      $('#sge-save').addEventListener('click', () => {
+        Budget.setSpendingGoal(catId, parseFloat($('#sge-monthly').value) || 0, parseFloat($('#sge-yearly').value) || 0);
+        closeModal(); toast('Updated! ✅'); renderBudget();
+      });
+    }));
+  };
+
+  // ============================================================
+  // GROCERY LIST
+  // ============================================================
+  const KEY_GROCERY = 'dp_grocery';
+  const GROCERY_AISLES = [
+    { id: 'produce',  name: 'Produce',        emoji: '🥬' },
+    { id: 'dairy',    name: 'Dairy & Eggs',    emoji: '🥛' },
+    { id: 'meat',     name: 'Meat & Seafood',  emoji: '🥩' },
+    { id: 'bakery',   name: 'Bakery & Bread',  emoji: '🍞' },
+    { id: 'frozen',   name: 'Frozen',          emoji: '🧊' },
+    { id: 'pantry',   name: 'Pantry & Dry',    emoji: '🥫' },
+    { id: 'snacks',   name: 'Snacks & Drinks', emoji: '🥤' },
+    { id: 'household',name: 'Household',       emoji: '🧹' },
+    { id: 'other',    name: 'Other',           emoji: '📦' }
+  ];
+  const _gGet = () => { try { const r = localStorage.getItem(KEY_GROCERY); return r ? JSON.parse(r) : []; } catch { return []; } };
+  const _gSet = v => { try { localStorage.setItem(KEY_GROCERY, JSON.stringify(v)); } catch {} };
+
+  const renderGrocery = () => {
+    const items = _gGet();
+    const unchecked = items.filter(i => !i.checked);
+    const checked = items.filter(i => i.checked);
+    const grouped = {};
+    unchecked.forEach(i => { if (!grouped[i.aisle]) grouped[i.aisle] = []; grouped[i.aisle].push(i); });
+
+    container().innerHTML = `
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">🛒 Grocery List</div>
+        <div class="stat-btn-row"><button class="app-btn ghost small" id="groc-clear-done">Clear Done</button><button class="app-btn ghost small" id="groc-back">← More</button></div></div>
+        <div class="budget-add-row" style="margin-bottom:12px">
+          <input type="text" class="app-input" id="groc-input" placeholder="Add item..." maxlength="60" style="flex:1">
+          <select class="app-input small" id="groc-aisle" style="width:auto">${GROCERY_AISLES.map(a => `<option value="${a.id}">${a.emoji} ${a.name}</option>`).join('')}</select>
+          <button class="app-btn primary small" id="groc-add-btn">+</button>
+        </div>
+        <div class="grocery-count">${unchecked.length} item${unchecked.length !== 1 ? 's' : ''} remaining${checked.length ? ` • ${checked.length} done` : ''}</div>
+      </div>
+      ${GROCERY_AISLES.filter(a => grouped[a.id]?.length).map(a => `
+        <div class="card fade-in grocery-aisle-card"><div class="grocery-aisle-title">${a.emoji} ${a.name}</div>
+          ${grouped[a.id].map(item => `<div class="grocery-item" data-id="${item.id}">
+            <div class="bill-check" data-id="${item.id}"></div>
+            <span class="grocery-item-name">${item.name}</span>
+            ${item.qty > 1 ? `<span class="grocery-qty">×${item.qty}</span>` : ''}
+            <button class="txn-delete-btn grocery-del" data-id="${item.id}">×</button>
+          </div>`).join('')}
+        </div>`).join('')}
+      ${checked.length ? `<div class="card fade-in" style="opacity:0.5"><div class="grocery-aisle-title">✅ Done</div>
+        ${checked.map(item => `<div class="grocery-item done" data-id="${item.id}">
+          <div class="bill-check checked" data-id="${item.id}">✓</div>
+          <span class="grocery-item-name" style="text-decoration:line-through">${item.name}</span>
+          <button class="txn-delete-btn grocery-del" data-id="${item.id}">×</button>
+        </div>`).join('')}</div>` : ''}`;
+
+    // Add item
+    const addItem = () => {
+      const name = $('#groc-input').value.trim();
+      if (!name) return;
+      const all = _gGet();
+      all.push({ id: 'gr_' + Date.now(), name, aisle: $('#groc-aisle').value, checked: false, qty: 1 });
+      _gSet(all); $('#groc-input').value = ''; renderGrocery();
+    };
+    $('#groc-add-btn').addEventListener('click', addItem);
+    $('#groc-input').addEventListener('keypress', e => { if (e.key === 'Enter') addItem(); });
+
+    // Toggle check
+    $$('.grocery-item .bill-check').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      const all = _gGet();
+      const item = all.find(i => i.id === b.dataset.id);
+      if (item) item.checked = !item.checked;
+      _gSet(all); renderGrocery();
+    }));
+
+    // Delete
+    $$('.grocery-del').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation(); _gSet(_gGet().filter(i => i.id !== b.dataset.id)); renderGrocery();
+    }));
+
+    // Clear done
+    $('#groc-clear-done').addEventListener('click', () => { _gSet(_gGet().filter(i => !i.checked)); toast('Cleared!'); renderGrocery(); });
+    $('#groc-back').addEventListener('click', () => navigate('more'));
+  };
+
+  // ============================================================
+  // TO-DO LIST
+  // ============================================================
+  const KEY_TODOS = 'dp_todos';
+  const _tGet = () => { try { const r = localStorage.getItem(KEY_TODOS); return r ? JSON.parse(r) : []; } catch { return []; } };
+  const _tSet = v => { try { localStorage.setItem(KEY_TODOS, JSON.stringify(v)); } catch {} };
+
+  const renderTodos = () => {
+    const items = _tGet();
+    const active = items.filter(i => !i.done).sort((a, b) => (a.priority || 3) - (b.priority || 3) || (a.due || 'z').localeCompare(b.due || 'z'));
+    const done = items.filter(i => i.done).sort((a, b) => b.doneDate?.localeCompare(a.doneDate || '') || 0);
+    const priColors = { 1: '#ef4444', 2: '#f59e0b', 3: '#6b7280' };
+    const priLabels = { 1: '🔴 High', 2: '🟡 Med', 3: '⚪ Low' };
+
+    container().innerHTML = `
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">✅ To-Do List</div>
+        <div class="stat-btn-row"><button class="app-btn ghost small" id="todo-clear-done">Clear Done</button><button class="app-btn ghost small" id="todo-back">← More</button></div></div>
+        <div class="budget-add-row" style="margin-bottom:4px">
+          <input type="text" class="app-input" id="todo-input" placeholder="Add task..." maxlength="80" style="flex:1">
+          <button class="app-btn primary small" id="todo-add-btn">+</button>
+        </div>
+        <div class="budget-add-row" style="margin-bottom:12px">
+          <select class="app-input small" id="todo-priority" style="width:auto"><option value="1">🔴 High</option><option value="2">🟡 Med</option><option value="3" selected>⚪ Low</option></select>
+          <input type="date" class="app-input small" id="todo-due" style="width:auto">
+        </div>
+        <div class="grocery-count">${active.length} active${done.length ? ` • ${done.length} done` : ''}</div>
+      </div>
+      <div class="card fade-in" style="animation-delay:0.03s">${active.length ? active.map(t => {
+        const overdue = t.due && t.due < Store.today();
+        return `<div class="todo-item ${overdue ? 'overdue' : ''}" data-id="${t.id}">
+          <div class="bill-check" data-id="${t.id}"></div>
+          <div class="todo-info"><div class="todo-name">${t.name}</div>
+            <div class="todo-meta"><span class="todo-pri" style="color:${priColors[t.priority]||'#6b7280'}">${priLabels[t.priority]||'⚪ Low'}</span>${t.due ? `<span class="todo-due ${overdue ? 'overdue' : ''}">${overdue ? '⚠️ ' : ''}${fmtDate(t.due)}</span>` : ''}</div></div>
+          <button class="txn-delete-btn todo-del" data-id="${t.id}">×</button>
+        </div>`;
+      }).join('') : '<div style="text-align:center;color:var(--text-secondary);padding:20px">All clear! 🎉</div>'}</div>
+      ${done.length ? `<div class="card fade-in" style="animation-delay:0.06s;opacity:0.5"><div class="grocery-aisle-title">✅ Completed (${done.length})</div>
+        ${done.slice(0, 20).map(t => `<div class="todo-item done" data-id="${t.id}">
+          <div class="bill-check checked" data-id="${t.id}">✓</div>
+          <span class="todo-name" style="text-decoration:line-through;opacity:0.6">${t.name}</span>
+          <button class="txn-delete-btn todo-del" data-id="${t.id}">×</button>
+        </div>`).join('')}</div>` : ''}`;
+
+    const addTodo = () => {
+      const name = $('#todo-input').value.trim();
+      if (!name) return;
+      const all = _tGet();
+      all.push({ id: 'td_' + Date.now(), name, priority: parseInt($('#todo-priority').value) || 3, due: $('#todo-due').value || '', done: false, created: Store.today(), doneDate: '' });
+      _tSet(all); $('#todo-input').value = ''; renderTodos();
+    };
+    $('#todo-add-btn').addEventListener('click', addTodo);
+    $('#todo-input').addEventListener('keypress', e => { if (e.key === 'Enter') addTodo(); });
+
+    $$('.todo-item .bill-check').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      const all = _tGet();
+      const item = all.find(i => i.id === b.dataset.id);
+      if (item) { item.done = !item.done; item.doneDate = item.done ? Store.today() : ''; }
+      _tSet(all); renderTodos();
+    }));
+
+    $$('.todo-del').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); _tSet(_tGet().filter(i => i.id !== b.dataset.id)); renderTodos(); }));
+    $('#todo-clear-done').addEventListener('click', () => { _tSet(_tGet().filter(i => !i.done)); toast('Cleared!'); renderTodos(); });
+    $('#todo-back').addEventListener('click', () => navigate('more'));
+  };
+
+  // ============================================================
+  // IMPORTANT DATES
+  // ============================================================
+  const KEY_DATES = 'dp_dates';
+  const DATE_TYPES = [
+    { id: 'birthday',   name: 'Birthday',            emoji: '🎂' },
+    { id: 'anniversary',name: 'Anniversary',         emoji: '💍' },
+    { id: 'dl_expiry',  name: "Driver's License",    emoji: '🪪' },
+    { id: 'passport',   name: 'Passport Expiry',     emoji: '🛂' },
+    { id: 'insurance',  name: 'Insurance Renewal',   emoji: '🛡️' },
+    { id: 'membership', name: 'Membership Renewal',  emoji: '🏷️' },
+    { id: 'vehicle',    name: 'Vehicle Registration', emoji: '🚗' },
+    { id: 'medical',    name: 'Medical Appointment', emoji: '🏥' },
+    { id: 'tax',        name: 'Tax Deadline',        emoji: '📋' },
+    { id: 'custom',     name: 'Custom',              emoji: '📅' }
+  ];
+  const _dGet = () => { try { const r = localStorage.getItem(KEY_DATES); return r ? JSON.parse(r) : []; } catch { return []; } };
+  const _dSet = v => { try { localStorage.setItem(KEY_DATES, JSON.stringify(v)); } catch {} };
+
+  const renderDates = () => {
+    const items = _dGet();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Calculate days until for each item
+    const withCountdown = items.map(item => {
+      const d = new Date(item.date + 'T12:00:00');
+      let next = new Date(d);
+
+      if (item.recurring) {
+        // For recurring (birthdays etc), find next occurrence
+        next.setFullYear(today.getFullYear());
+        if (next < today) next.setFullYear(today.getFullYear() + 1);
+      }
+
+      const diff = Math.ceil((next - today) / 86400000);
+      return { ...item, daysUntil: diff, nextDate: next.toISOString().split('T')[0] };
+    }).sort((a, b) => a.daysUntil - b.daysUntil);
+
+    const upcoming = withCountdown.filter(i => i.daysUntil >= 0 && i.daysUntil <= 90);
+    const expiring = withCountdown.filter(i => !i.recurring && i.daysUntil >= 0 && i.daysUntil <= 30);
+    const past = withCountdown.filter(i => !i.recurring && i.daysUntil < 0);
+
+    container().innerHTML = `
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">📅 Important Dates</div>
+        <div class="stat-btn-row"><button class="app-btn primary small" id="dates-add-btn">+ Add</button><button class="app-btn ghost small" id="dates-back">← More</button></div></div>
+        <div class="grocery-count">${items.length} date${items.length !== 1 ? 's' : ''} tracked${expiring.length ? ` • ⚠️ ${expiring.length} expiring soon` : ''}</div>
+      </div>
+      ${upcoming.length ? `<div class="card fade-in" style="animation-delay:0.03s"><div class="card-title">⏰ Coming Up</div>
+        ${upcoming.map(item => {
+          const typeInfo = DATE_TYPES.find(t => t.id === item.type) || DATE_TYPES[9];
+          const urgency = item.daysUntil <= 7 ? 'urgent' : item.daysUntil <= 30 ? 'soon' : '';
+          return `<div class="date-item ${urgency}">
+            <span class="date-item-emoji">${typeInfo.emoji}</span>
+            <div class="date-item-info"><div class="date-item-name">${item.name}</div>
+              <div class="date-item-meta">${fmtDate(item.nextDate)}${item.recurring ? ' • Recurring yearly' : ''}</div></div>
+            <div class="date-countdown ${urgency}">${item.daysUntil === 0 ? 'Today!' : item.daysUntil === 1 ? 'Tomorrow' : item.daysUntil + 'd'}</div>
+            <button class="txn-delete-btn date-del" data-id="${item.id}">×</button>
+          </div>`;
+        }).join('')}</div>` : ''}
+      ${withCountdown.filter(i => i.daysUntil > 90 || (i.recurring && i.daysUntil > 90)).length ? `<div class="card fade-in" style="animation-delay:0.06s"><div class="card-title">📋 All Dates</div>
+        ${withCountdown.filter(i => i.daysUntil > 90).map(item => {
+          const typeInfo = DATE_TYPES.find(t => t.id === item.type) || DATE_TYPES[9];
+          return `<div class="date-item"><span class="date-item-emoji">${typeInfo.emoji}</span><div class="date-item-info"><div class="date-item-name">${item.name}</div><div class="date-item-meta">${fmtDate(item.nextDate)}</div></div><div class="date-countdown">${item.daysUntil}d</div><button class="txn-delete-btn date-del" data-id="${item.id}">×</button></div>`;
+        }).join('')}</div>` : ''}
+      ${past.length ? `<div class="card fade-in" style="animation-delay:0.09s;opacity:0.5"><div class="card-title">⚠️ Expired</div>
+        ${past.map(item => {
+          const typeInfo = DATE_TYPES.find(t => t.id === item.type) || DATE_TYPES[9];
+          return `<div class="date-item overdue"><span class="date-item-emoji">${typeInfo.emoji}</span><div class="date-item-info"><div class="date-item-name">${item.name}</div><div class="date-item-meta">${fmtDate(item.date)} • ${Math.abs(item.daysUntil)} days ago</div></div><button class="txn-delete-btn date-del" data-id="${item.id}">×</button></div>`;
+        }).join('')}</div>` : ''}
+      ${!items.length ? '<div class="card fade-in"><div style="text-align:center;color:var(--text-secondary);padding:20px">No dates tracked yet. Tap + Add to get started!</div></div>' : ''}`;
+
+    // Add date
+    $('#dates-add-btn').addEventListener('click', () => {
+      openModal(`<div class="modal-title">📅 Add Important Date</div>
+        <div class="modal-section-label">Type:</div>
+        <select class="app-input" id="id-type">${DATE_TYPES.map(t => `<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('')}</select>
+        <div class="modal-section-label">Name / Description:</div>
+        <input type="text" class="app-input" id="id-name" placeholder="e.g. Mom's Birthday, Passport" maxlength="60">
+        <div class="modal-section-label">Date:</div>
+        <input type="date" class="app-input" id="id-date">
+        <label class="tool-pick-item" style="margin-top:10px"><input type="checkbox" id="id-recurring" checked><span class="tool-pick-label">Repeats every year (birthdays, anniversaries)</span></label>
+        <div class="modal-actions"><button class="app-btn ghost" id="id-cancel">Cancel</button><button class="app-btn primary" id="id-save">Add</button></div>`);
+      // Auto-toggle recurring based on type
+      $('#id-type').addEventListener('change', () => {
+        const t = $('#id-type').value;
+        $('#id-recurring').checked = ['birthday', 'anniversary'].includes(t);
+      });
+      $('#id-cancel').addEventListener('click', closeModal);
+      $('#id-save').addEventListener('click', () => {
+        const name = $('#id-name').value.trim();
+        const date = $('#id-date').value;
+        if (!name || !date) { toast('Enter name and date'); return; }
+        const all = _dGet();
+        all.push({ id: 'dt_' + Date.now(), type: $('#id-type').value, name, date, recurring: $('#id-recurring').checked });
+        _dSet(all); closeModal(); toast('Date added! 📅'); renderDates();
+      });
+    });
+
+    // Delete
+    $$('.date-del').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation(); _dSet(_dGet().filter(i => i.id !== b.dataset.id)); renderDates();
+    }));
+
+    $('#dates-back').addEventListener('click', () => navigate('more'));
+  };
+
+  // ============================================================
+  // MORE HUB PAGE (Grocery, To-Do, Dates, Awards)
+  // ============================================================
+  const renderMore = () => {
+    const todoCount = _tGet().filter(i => !i.done).length;
+    const groceryCount = _gGet().filter(i => !i.checked).length;
+    const dateItems = _dGet();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const urgentDates = dateItems.filter(item => {
+      const d = new Date(item.date + 'T12:00:00');
+      if (item.recurring) { d.setFullYear(today.getFullYear()); if (d < today) d.setFullYear(today.getFullYear() + 1); }
+      return Math.ceil((d - today) / 86400000) <= 30 && Math.ceil((d - today) / 86400000) >= 0;
+    }).length;
+    const challengeCount = Motivation.generateChallenges().length;
+
+    container().innerHTML = `
+      <div class="card fade-in"><div class="card-title">📦 More Tools</div>
+        <div class="more-grid">
+          <button class="more-tile" data-page="grocery"><span class="more-tile-emoji">🛒</span><span class="more-tile-name">Grocery List</span>${groceryCount ? `<span class="more-tile-badge">${groceryCount}</span>` : ''}</button>
+          <button class="more-tile" data-page="todos"><span class="more-tile-emoji">✅</span><span class="more-tile-name">To-Do List</span>${todoCount ? `<span class="more-tile-badge">${todoCount}</span>` : ''}</button>
+          <button class="more-tile" data-page="dates"><span class="more-tile-emoji">📅</span><span class="more-tile-name">Important Dates</span>${urgentDates ? `<span class="more-tile-badge urgent">${urgentDates}</span>` : ''}</button>
+          <button class="more-tile" data-page="challenges"><span class="more-tile-emoji">🏆</span><span class="more-tile-name">Challenges</span>${challengeCount ? `<span class="more-tile-badge">${challengeCount}</span>` : ''}</button>
+          <button class="more-tile" data-page="suggestions"><span class="more-tile-emoji">💡</span><span class="more-tile-name">Goal Ideas</span></button>
+          <button class="more-tile" data-page="awards"><span class="more-tile-emoji">🎖️</span><span class="more-tile-name">Awards</span></button>
+        </div>
+      </div>`;
+
+    $$('.more-tile').forEach(t => t.addEventListener('click', () => navigate(t.dataset.page)));
+  };
+
+  // ============================================================
+  // CHALLENGES PAGE
+  // ============================================================
+  const renderChallenges = () => {
+    const challenges = Motivation.generateChallenges();
+    const diffColors = { easy: '#10b981', medium: '#f59e0b', hard: '#ef4444' };
+
+    container().innerHTML = `
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">🏆 Your Challenges</div><button class="app-btn ghost small" id="ch-back">← More</button></div>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Personalized challenges based on your real goals and performance. No pressure — these are here to inspire, not stress!</p>
+      </div>
+      ${challenges.length ? challenges.map((ch, i) => {
+        const pct = ch.target > 0 ? Math.min(100, Math.round((ch.current / ch.target) * 100)) : 0;
+        return `<div class="card fade-in challenge-card" style="animation-delay:${i * 0.03}s;border-left:4px solid ${diffColors[ch.difficulty] || '#6b7280'}">
+          <div class="challenge-header"><span class="challenge-emojis">${ch.emoji} ${ch.goalEmoji}</span><span class="challenge-diff challenge-${ch.difficulty}">${ch.difficulty}</span></div>
+          <div class="challenge-title">${ch.title}</div>
+          <div class="challenge-desc">${ch.desc}</div>
+          <div class="budget-bar-wrap" style="margin-top:8px"><div class="budget-bar-fill" style="width:${pct}%;background:${diffColors[ch.difficulty]}"></div></div>
+          <div class="challenge-progress">${ch.current} / ${ch.target} (${pct}%)</div>
+          ${pct >= 100 ? '<div class="challenge-complete">🎉 Challenge Complete!</div>' : ''}
+        </div>`;
+      }).join('') : '<div class="card fade-in"><div style="text-align:center;color:var(--text-secondary);padding:20px">Add some goals first, and challenges will appear based on your activity! 🌱</div></div>'}`;
+
+    $('#ch-back').addEventListener('click', () => navigate('more'));
+  };
+
+  // ============================================================
+  // SMART GOAL SUGGESTIONS PAGE
+  // ============================================================
+  const renderSuggestions = () => {
+    const suggestions = Motivation.getSuggestedGoals();
+    const tags = Store.getTags();
+    const grouped = {};
+    suggestions.forEach(s => {
+      const tag = tags.find(t => t.id === s.tagId);
+      const key = tag ? tag.name : 'Other';
+      if (!grouped[key]) grouped[key] = { tag, items: [] };
+      grouped[key].items.push(s);
+    });
+
+    container().innerHTML = `
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">💡 Goal Ideas</div><button class="app-btn ghost small" id="sg-back">← More</button></div>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Smart suggestions based on your goal categories. Tap any to add it instantly!</p>
+      </div>
+      ${Object.entries(grouped).map(([catName, { tag, items }], i) => `
+        <div class="card fade-in" style="animation-delay:${i * 0.03}s">
+          <div class="card-title">${tag ? tag.emoji + ' ' : ''}${catName}</div>
+          ${items.map(s => `<div class="suggestion-item" data-name="${s.name}" data-emoji="${s.emoji}" data-tools='${JSON.stringify(s.tools)}' data-cfg='${JSON.stringify(s.toolConfig || {})}' data-frequency='${JSON.stringify(s.frequency)}' data-tags='${JSON.stringify(s.tags || [])}' data-cl='${JSON.stringify(s.checklist || [])}'>
+            <span class="suggestion-emoji">${s.emoji}</span>
+            <div class="suggestion-info"><div class="suggestion-name">${s.name}</div><div class="suggestion-meta">${Store.frequencyLabel(s.frequency)} • ${s.tools.filter(t => t !== 'check').map(t => Store.TOOL_DEFS[t]?.emoji || '').join(' ') || 'Daily check'}</div></div>
+            <button class="app-btn primary small suggestion-add-btn">+ Add</button>
+          </div>`).join('')}
+        </div>`).join('')}
+      ${!suggestions.length ? '<div class="card fade-in"><div style="text-align:center;color:var(--text-secondary);padding:20px">You\'ve already added all available suggestions! Try creating custom goals. 🎯</div></div>' : ''}`;
+
+    $('#sg-back').addEventListener('click', () => navigate('more'));
+
+    $$('.suggestion-add-btn').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const item = btn.closest('.suggestion-item');
+      const success = Store.addGoal({
+        name: item.dataset.name,
+        emoji: item.dataset.emoji,
+        icon: 'goal-star',
+        customIcon: null,
+        tools: JSON.parse(item.dataset.tools),
+        toolConfig: JSON.parse(item.dataset.cfg),
+        checklist: JSON.parse(item.dataset.cl),
+        frequency: JSON.parse(item.dataset.frequency),
+        tags: JSON.parse(item.dataset.tags)
+      });
+      if (success) { toast(`${item.dataset.emoji} ${item.dataset.name} added! 🎯`); renderSuggestions(); }
+      else toast(`Max ${Store.MAX_GOALS} goals!`);
+    }));
   };
 
   // ============================================================
@@ -890,7 +1529,7 @@ const UI = (() => {
   // ============================================================
   // ROUTER
   // ============================================================
-  const pages = { dashboard:renderDashboard, weight:renderWeight, sleep:renderSleep, budget:renderBudget, goals:renderGoals, stats:renderStats, awards:renderAwards, settings:renderSettings };
+  const pages = { dashboard:renderDashboard, weight:renderWeight, sleep:renderSleep, budget:renderBudget, goals:renderGoals, stats:renderStats, awards:renderAwards, settings:renderSettings, more:renderMore, grocery:renderGrocery, todos:renderTodos, dates:renderDates, challenges:renderChallenges, suggestions:renderSuggestions };
   const navigate = page => { if(pages[page]){container().innerHTML='';pages[page]();} };
   return { navigate, toast, openModal, closeModal, renderDashboard };
 })();
