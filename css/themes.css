@@ -82,37 +82,36 @@ body.theme-ocean { background: linear-gradient(170deg, #0a1628 0%, #0c1e3a 35%, 
 .theme-ocean #page-content::after { content: ''; position: fixed; bottom: 64px; left: 0; right: 0; height: 80px; background: linear-gradient(0deg, rgba(14,165,233,0.04), transparent); pointer-events: none; z-index: 0; }
 
 /* ============================================================
-   🌅 SUNSET — Warm coral pink, actual sunset sky colors
+   🌅 SUNRISE — Bright warm pink/orange/peach, morning sky
+   Light theme with warm rosy glow
    ============================================================ */
-.theme-sunset {
-  --bg-primary: #1a0f18;
-  --bg-secondary: rgba(255,120,80,0.04);
-  --bg-tertiary: rgba(0,0,0,0.3);
-  --text-primary: #fff0e8;
-  --text-secondary: #c08878;
-  --text-accent: #fb7185;
+.theme-sunrise {
+  --bg-primary: #fff8f5;
+  --bg-secondary: rgba(255,255,255,0.88);
+  --bg-tertiary: rgba(255,100,50,0.03);
+  --text-primary: #3d1f1a;
+  --text-secondary: #b06850;
+  --text-accent: #f43f5e;
   --accent-primary: #f43f5e;
   --accent-secondary: #f97316;
-  --accent-gradient: linear-gradient(135deg, #f43f5e, #e11d48);
-  --border-color: rgba(244,63,94,0.07);
-  --shadow-color: rgba(40,10,20,0.3);
+  --accent-gradient: linear-gradient(135deg, #f43f5e, #f97316);
+  --border-color: rgba(244,63,94,0.06);
+  --shadow-color: rgba(244,63,94,0.05);
 }
-body.theme-sunset { background: linear-gradient(170deg, #1a0f18 0%, #2a1520 30%, #1e1018 60%, #180e14 100%); }
-.theme-sunset .card {
-  background: linear-gradient(160deg, rgba(45,20,30,0.5), rgba(35,15,25,0.6));
-  border: 1px solid rgba(244,63,94,0.06);
-  box-shadow: 0 4px 20px rgba(30,5,15,0.25);
-}
-.theme-sunset .header-title { background: linear-gradient(135deg, #fda4af, #fb7185, #f97316); -webkit-background-clip: text; background-clip: text; }
-.theme-sunset .stat-value { background: linear-gradient(135deg, #fda4af, #fb7185); -webkit-background-clip: text; background-clip: text; }
-.theme-sunset #bottom-nav { background: rgba(20,10,16,0.94); border-top: 1px solid rgba(244,63,94,0.06); }
-.theme-sunset .nav-btn.active { color: #fb7185; }
-.theme-sunset .nav-btn.active::before { background: linear-gradient(90deg, #f43f5e, #f97316); }
-.theme-sunset .goal-row.done { background: rgba(244,63,94,0.07); border-color: rgba(244,63,94,0.15); }
-.theme-sunset .goal-check.checked { background: linear-gradient(135deg, #f43f5e, #e11d48); box-shadow: 0 2px 8px rgba(244,63,94,0.3); }
-.theme-sunset .week-dot.done { background: rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.25); color: #fb7185; }
-.theme-sunset .circle-progress-ring { stroke: #f43f5e; }
-.theme-sunset #app-header { background: linear-gradient(180deg, rgba(249,115,22,0.06), transparent); }
+body.theme-sunrise { background: linear-gradient(170deg, #fff8f5 0%, #ffe8e0 30%, #fff0e8 60%, #fff8f5 100%); }
+.theme-sunrise #bottom-nav { background: rgba(255,248,245,0.94); box-shadow: 0 -1px 12px rgba(244,63,94,0.04); }
+.theme-sunrise #app-header { background: linear-gradient(180deg, rgba(249,115,22,0.06), transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.theme-sunrise .card { background: linear-gradient(160deg, rgba(255,255,255,0.9), rgba(255,232,224,0.4)); box-shadow: 0 3px 14px rgba(244,63,94,0.05); }
+.theme-sunrise .header-title { background: linear-gradient(135deg, #f43f5e, #f97316, #fbbf24); -webkit-background-clip: text; background-clip: text; }
+.theme-sunrise .stat-value { background: linear-gradient(135deg, #f43f5e, #f97316); -webkit-background-clip: text; background-clip: text; }
+.theme-sunrise .goal-check { border-color: rgba(0,0,0,0.1); }
+.theme-sunrise .goal-check.checked { background: linear-gradient(135deg, #f43f5e, #f97316); box-shadow: 0 2px 8px rgba(244,63,94,0.25); }
+.theme-sunrise .goal-row { background: rgba(0,0,0,0.01); }
+.theme-sunrise .goal-row.done { background: rgba(244,63,94,0.04); border-color: rgba(244,63,94,0.1); }
+.theme-sunrise .nav-btn.active { color: #f43f5e; }
+.theme-sunrise .nav-btn.active::before { background: linear-gradient(90deg, #f43f5e, #f97316); }
+.theme-sunrise .week-dot.done { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.18); color: #f43f5e; }
+.theme-sunrise .circle-progress-ring { stroke: #f43f5e; }
 
 /* ============================================================
    🌲 FOREST — Deep pine & moss, natural and grounded

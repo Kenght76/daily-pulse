@@ -420,7 +420,7 @@ const UI = (() => {
 
     container().innerHTML=`${aHtml}
       <div class="card fade-in dash-greeting-card">
-        <div class="dash-greeting-row">${Motivation.renderAvatarHTML(44)}<div class="dash-greeting"><div class="dash-greeting-msg">${greeting}</div></div><button class="dash-avatar-btn" id="avatar-edit-btn" title="Change avatar">&#x270F;&#xFE0F;</button></div>
+        <div class="dash-greeting-row">${Motivation.renderAvatarHTML(72)}<div class="dash-greeting"><div class="dash-greeting-msg">${greeting}</div></div><button class="dash-avatar-btn" id="avatar-edit-btn" title="Change avatar">&#x270F;&#xFE0F;</button></div>
       </div>
       <div class="card fade-in" style="animation-delay:0.03s"><div class="card-title">Today's Progress</div>
         <div class="progress-row">${circleProgress(todayPct,80,'Goals')}<div class="stat-block"><div class="stat-value">${cw}</div><div class="stat-label">${Store.getLabel('weightUnit','lbs')}</div></div><div class="stat-block"><div class="stat-value">${os}</div><div class="stat-label">Streak</div></div>
@@ -438,7 +438,7 @@ const UI = (() => {
       <div class="card fade-in" style="animation-delay:0.09s"><div class="card-title">Daily Check-in</div><div id="dash-goals"></div></div>
       ${challenges.length?`<div class="card fade-in" style="animation-delay:0.12s"><div class="card-header-row"><div class="card-title">Active Challenges</div><button class="app-btn ghost small" id="btn-all-challenges">See All</button></div>
         ${challenges.map(ch=>{const pct=ch.target>0?Math.min(100,Math.round((ch.current/ch.target)*100)):0;return `<div class="challenge-mini"><div class="challenge-mini-header"><span>${ch.emoji} ${ch.goalEmoji}</span><span class="challenge-diff challenge-${ch.difficulty}">${ch.difficulty}</span></div><div class="challenge-mini-title">${ch.title}</div><div class="challenge-mini-desc">${ch.desc}</div><div class="budget-bar-wrap"><div class="budget-bar-fill" style="width:${pct}%"></div></div></div>`;}).join('')}</div>`:''}
-      <div class="quote-boost fade-in" style="animation-delay:0.15s"><button class="quote-boost-btn" id="q-btn">&#x2728; Need a boost?</button><div class="quote-boost-reveal hidden" id="q-reveal"><div class="quote-text" id="q-text">"${Quotes.getRandom()}"</div><div class="quote-boost-hint">Tap for another</div></div></div>`;
+      <div class="quote-boost fade-in" style="animation-delay:0.15s"><button class="quote-boost-btn" id="q-btn">&#x2728; Need a boost? Tap me!</button><div class="quote-boost-reveal hidden" id="q-reveal"><div class="quote-text" id="q-text">"${Quotes.getRandom()}"</div><div class="quote-boost-hint">Tap for another</div></div></div>`;
 
     // Wire hub tiles
     $$('.hub-tile').forEach(t=>t.addEventListener('click',()=>navigate(t.dataset.page)));
@@ -489,7 +489,7 @@ const UI = (() => {
   // ============================================================
   const renderWeight = () => {
     const w=Store.getWeights(), st=w.length?w[0].weight:0, cu=w.length?w[w.length-1].weight:0, lo=Math.max(0,st-cu).toFixed(1);
-    container().innerHTML=`<div class="sub-page-header"><button class="back-btn" id="back-home">&#x2190; Home</button><span class="sub-page-title">Weight</span></div>
+    container().innerHTML=`<div class="sub-page-header"><button class="back-btn" id="back-home">&#x2190; Home#x2190; My Progress</button><span class="sub-page-title">Weight</span></div>
       <div class="card fade-in"><div class="card-title">Weight Trend</div><div id="wc" class="chart-container"></div></div>
       <div class="card fade-in" style="animation-delay:0.05s"><div class="stats-grid cols-3"><div class="stat-block"><div class="stat-value">${st||'—'}</div><div class="stat-label">Start</div></div><div class="stat-block"><div class="stat-value">${cu||'—'}</div><div class="stat-label">Current</div></div><div class="stat-block"><div class="stat-value">${lo}</div><div class="stat-label">Lost</div></div></div></div>
       <div class="card fade-in" style="animation-delay:0.1s"><div class="card-title">Log Weight</div><div class="input-row"><input type="number" id="w-in" class="app-input" placeholder="e.g. 185.5" step="0.1"><button class="app-btn primary" id="w-btn">Log</button></div></div>
@@ -508,7 +508,7 @@ const UI = (() => {
     const logs=Store.getSleepLogs().slice(-14).reverse();
 
     container().innerHTML=`
-      <div class="sub-page-header"><button class="back-btn" id="back-home">&#x2190; Home</button><span class="sub-page-title">Sleep</span></div>
+      <div class="sub-page-header"><button class="back-btn" id="back-home">&#x2190; Home#x2190; My Progress</button><span class="sub-page-title">Sleep</span></div>
       <div class="card fade-in"><div class="card-title">Log Sleep</div>
         <div class="sleep-input-grid">
           <div class="sleep-field"><label class="settings-label">Bedtime</label><input type="time" id="sl-bed" class="app-input" value="${entry?.bedtime||'22:30'}"></div>
@@ -1230,7 +1230,7 @@ const UI = (() => {
 
     container().innerHTML = `
       <div class="card fade-in"><div class="card-header-row"><div class="card-title">🛒 Grocery List</div>
-        <div class="stat-btn-row"><button class="app-btn ghost small" id="groc-clear-done">Clear Done</button><button class="app-btn ghost small" id="groc-back">← More</button></div></div>
+        <div class="stat-btn-row"><button class="app-btn ghost small" id="groc-clear-done">Clear Done</button><button class="app-btn ghost small" id="groc-back">← More#x2190; My Progress</button></div></div>
         <div class="budget-add-row" style="margin-bottom:12px">
           <input type="text" class="app-input" id="groc-input" placeholder="Add item..." maxlength="60" style="flex:1">
           <select class="app-input small" id="groc-aisle" style="width:auto">${GROCERY_AISLES.map(a => `<option value="${a.id}">${a.emoji} ${a.name}</option>`).join('')}</select>
@@ -1281,7 +1281,7 @@ const UI = (() => {
 
     // Clear done
     $('#groc-clear-done').addEventListener('click', () => { _gSet(_gGet().filter(i => !i.checked)); toast('Cleared!'); renderGrocery(); });
-    $('#groc-back').addEventListener('click', () => navigate('more'));
+    $('#groc-back').addEventListener('click', () => navigate('home'));
   };
 
   // ============================================================
@@ -1300,7 +1300,7 @@ const UI = (() => {
 
     container().innerHTML = `
       <div class="card fade-in"><div class="card-header-row"><div class="card-title">✅ To-Do List</div>
-        <div class="stat-btn-row"><button class="app-btn ghost small" id="todo-clear-done">Clear Done</button><button class="app-btn ghost small" id="todo-back">← More</button></div></div>
+        <div class="stat-btn-row"><button class="app-btn ghost small" id="todo-clear-done">Clear Done</button><button class="app-btn ghost small" id="todo-back">← More#x2190; My Progress</button></div></div>
         <div class="budget-add-row" style="margin-bottom:4px">
           <input type="text" class="app-input" id="todo-input" placeholder="Add task..." maxlength="80" style="flex:1">
           <button class="app-btn primary small" id="todo-add-btn">+</button>
@@ -1347,7 +1347,7 @@ const UI = (() => {
 
     $$('.todo-del').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); _tSet(_tGet().filter(i => i.id !== b.dataset.id)); renderTodos(); }));
     $('#todo-clear-done').addEventListener('click', () => { _tSet(_tGet().filter(i => !i.done)); toast('Cleared!'); renderTodos(); });
-    $('#todo-back').addEventListener('click', () => navigate('more'));
+    $('#todo-back').addEventListener('click', () => navigate('home'));
   };
 
   // ============================================================
@@ -1395,7 +1395,7 @@ const UI = (() => {
 
     container().innerHTML = `
       <div class="card fade-in"><div class="card-header-row"><div class="card-title">📅 Important Dates</div>
-        <div class="stat-btn-row"><button class="app-btn primary small" id="dates-add-btn">+ Add</button><button class="app-btn ghost small" id="dates-back">← More</button></div></div>
+        <div class="stat-btn-row"><button class="app-btn primary small" id="dates-add-btn">+ Add</button><button class="app-btn ghost small" id="dates-back">← More#x2190; My Progress</button></div></div>
         <div class="grocery-count">${items.length} date${items.length !== 1 ? 's' : ''} tracked${expiring.length ? ` • ⚠️ ${expiring.length} expiring soon` : ''}</div>
       </div>
       ${upcoming.length ? `<div class="card fade-in" style="animation-delay:0.03s"><div class="card-title">⏰ Coming Up</div>
@@ -1454,7 +1454,7 @@ const UI = (() => {
       e.stopPropagation(); _dSet(_dGet().filter(i => i.id !== b.dataset.id)); renderDates();
     }));
 
-    $('#dates-back').addEventListener('click', () => navigate('more'));
+    $('#dates-back').addEventListener('click', () => navigate('home'));
   };
 
   // ============================================================
@@ -1495,7 +1495,7 @@ const UI = (() => {
     const diffColors = { easy: '#10b981', medium: '#f59e0b', hard: '#ef4444' };
 
     container().innerHTML = `
-      <div class="card fade-in"><div class="card-header-row"><div class="card-title">🏆 Your Challenges</div><button class="app-btn ghost small" id="ch-back">← More</button></div>
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">🏆 Your Challenges</div><button class="app-btn ghost small" id="ch-back">← More#x2190; My Progress</button></div>
         <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Personalized challenges based on your real goals and performance. No pressure — these are here to inspire, not stress!</p>
       </div>
       ${challenges.length ? challenges.map((ch, i) => {
@@ -1510,7 +1510,7 @@ const UI = (() => {
         </div>`;
       }).join('') : '<div class="card fade-in"><div style="text-align:center;color:var(--text-secondary);padding:20px">Add some goals first, and challenges will appear based on your activity! 🌱</div></div>'}`;
 
-    $('#ch-back').addEventListener('click', () => navigate('more'));
+    $('#ch-back').addEventListener('click', () => navigate('home'));
   };
 
   // ============================================================
@@ -1528,7 +1528,7 @@ const UI = (() => {
     });
 
     container().innerHTML = `
-      <div class="card fade-in"><div class="card-header-row"><div class="card-title">💡 Goal Ideas</div><button class="app-btn ghost small" id="sg-back">← More</button></div>
+      <div class="card fade-in"><div class="card-header-row"><div class="card-title">💡 Goal Ideas</div><button class="app-btn ghost small" id="sg-back">← More#x2190; My Progress</button></div>
         <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Smart suggestions based on your goal categories. Tap any to add it instantly!</p>
       </div>
       ${Object.entries(grouped).map(([catName, { tag, items }], i) => `
@@ -1542,7 +1542,7 @@ const UI = (() => {
         </div>`).join('')}
       ${!suggestions.length ? '<div class="card fade-in"><div style="text-align:center;color:var(--text-secondary);padding:20px">You\'ve already added all available suggestions! Try creating custom goals. 🎯</div></div>' : ''}`;
 
-    $('#sg-back').addEventListener('click', () => navigate('more'));
+    $('#sg-back').addEventListener('click', () => navigate('home'));
 
     $$('.suggestion-add-btn').forEach(btn => btn.addEventListener('click', e => {
       e.stopPropagation();

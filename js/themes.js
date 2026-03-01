@@ -8,7 +8,7 @@ const Themes = (() => {
     { id: 'default-dark',     name: 'Dark',            emoji: '🌙' },
     { id: 'default-light',    name: 'Light',           emoji: '☀️' },
     { id: 'ocean',            name: 'Ocean',           emoji: '🌊' },
-    { id: 'sunset',           name: 'Sunset',          emoji: '🌅' },
+    { id: 'sunrise',           name: 'Sunrise',          emoji: '🌅' },
     { id: 'forest',           name: 'Forest',          emoji: '🌲' },
     { id: 'lavender',         name: 'Lavender',        emoji: '💜' },
     { id: 'daylight',         name: 'Daylight',        emoji: '🌤️' },
