@@ -395,17 +395,110 @@ const UI = (() => {
   };
 
   // ============================================================
+  // HOME HUB — Central hub with tiles + daily check-in
+  // ============================================================
+  const renderHome = () => {
+    const weights=Store.getWeights(), goals=Store.getActiveGoals(), ts=Store.today();
+    const todayDone=goals.filter(g=>g.log[ts]).length, todayPct=goals.length?Math.round((todayDone/goals.length)*100):0;
+    const cw=weights.length?weights[weights.length-1].weight:'---';
+    const os=goals.length?Math.min(...goals.map(g=>Store.calcStreak(g.log,g.frequency))):0;
+    const sleepToday=Store.getSleepByDate(ts);
+    const greeting=(()=>{const h=new Date().getHours();if(todayPct===100)return Motivation.getEncouragement({type:'all_done',todayDone,todayTotal:goals.length});if(todayDone>0)return Motivation.getEncouragement({type:'partial_day',todayDone,todayTotal:goals.length});if(h>=20)return Motivation.getEncouragement({type:'missed_day'});return Motivation.getEncouragement({type:'morning_greeting'});})();
+
+    const todoCount = _tGet().filter(i=>!i.done).length;
+    const groceryCount = _gGet().filter(i=>!i.checked).length;
+    const dateItems = _dGet();
+    const urgentDates = dateItems.filter(item => {
+      const d=new Date(item.date+'T12:00:00'); const today2=new Date(); today2.setHours(0,0,0,0);
+      if(item.recurring){d.setFullYear(today2.getFullYear());if(d<today2)d.setFullYear(today2.getFullYear()+1);}
+      return Math.ceil((d-today2)/86400000)<=30 && Math.ceil((d-today2)/86400000)>=0;
+    }).length;
+    const challenges=Motivation.generateChallenges().slice(0,2);
+
+    const alerts=Reminders.getPendingAlerts();
+    const aHtml=alerts.length?alerts.map(a=>`<div class="alert-banner fade-in" data-alert-id="${a.id}"><span class="alert-icon">${a.icon}</span><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-body">${a.body}</div></div><button class="alert-dismiss" data-dismiss="${a.id}">&#x2715;</button></div>`).join(''):'';
+
+    container().innerHTML=`${aHtml}
+      <div class="card fade-in dash-greeting-card">
+        <div class="dash-greeting-row">${Motivation.renderAvatarHTML(44)}<div class="dash-greeting"><div class="dash-greeting-msg">${greeting}</div></div><button class="dash-avatar-btn" id="avatar-edit-btn" title="Change avatar">&#x270F;&#xFE0F;</button></div>
+      </div>
+      <div class="card fade-in" style="animation-delay:0.03s"><div class="card-title">Today's Progress</div>
+        <div class="progress-row">${circleProgress(todayPct,80,'Goals')}<div class="stat-block"><div class="stat-value">${cw}</div><div class="stat-label">${Store.getLabel('weightUnit','lbs')}</div></div><div class="stat-block"><div class="stat-value">${os}</div><div class="stat-label">Streak</div></div>
+        ${sleepToday?`<div class="stat-block"><div class="stat-value">${sleepToday.hours.toFixed(1)}</div><div class="stat-label">hrs sleep</div></div>`:''}</div></div>
+      <div class="card fade-in" style="animation-delay:0.06s"><div class="card-title">Quick Access</div>
+        <div class="hub-grid">
+          <button class="hub-tile" data-page="weight"><span class="hub-tile-emoji">&#x2696;&#xFE0F;</span><span class="hub-tile-name">Weight</span></button>
+          <button class="hub-tile" data-page="sleep"><span class="hub-tile-emoji">&#x1F634;</span><span class="hub-tile-name">Sleep</span></button>
+          <button class="hub-tile" data-page="grocery"><span class="hub-tile-emoji">&#x1F6D2;</span><span class="hub-tile-name">Grocery</span>${groceryCount?`<span class="hub-tile-badge">${groceryCount}</span>`:''}</button>
+          <button class="hub-tile" data-page="todos"><span class="hub-tile-emoji">&#x2705;</span><span class="hub-tile-name">To-Do</span>${todoCount?`<span class="hub-tile-badge">${todoCount}</span>`:''}</button>
+          <button class="hub-tile" data-page="dates"><span class="hub-tile-emoji">&#x1F4C5;</span><span class="hub-tile-name">Dates</span>${urgentDates?`<span class="hub-tile-badge urgent">${urgentDates}</span>`:''}</button>
+          <button class="hub-tile" data-page="challenges"><span class="hub-tile-emoji">&#x1F3C6;</span><span class="hub-tile-name">Challenges</span></button>
+        </div>
+      </div>
+      <div class="card fade-in" style="animation-delay:0.09s"><div class="card-title">Daily Check-in</div><div id="dash-goals"></div></div>
+      ${challenges.length?`<div class="card fade-in" style="animation-delay:0.12s"><div class="card-header-row"><div class="card-title">Active Challenges</div><button class="app-btn ghost small" id="btn-all-challenges">See All</button></div>
+        ${challenges.map(ch=>{const pct=ch.target>0?Math.min(100,Math.round((ch.current/ch.target)*100)):0;return `<div class="challenge-mini"><div class="challenge-mini-header"><span>${ch.emoji} ${ch.goalEmoji}</span><span class="challenge-diff challenge-${ch.difficulty}">${ch.difficulty}</span></div><div class="challenge-mini-title">${ch.title}</div><div class="challenge-mini-desc">${ch.desc}</div><div class="budget-bar-wrap"><div class="budget-bar-fill" style="width:${pct}%"></div></div></div>`;}).join('')}</div>`:''}
+      <div class="quote-boost fade-in" style="animation-delay:0.15s"><button class="quote-boost-btn" id="q-btn">&#x2728; Need a boost?</button><div class="quote-boost-reveal hidden" id="q-reveal"><div class="quote-text" id="q-text">"${Quotes.getRandom()}"</div><div class="quote-boost-hint">Tap for another</div></div></div>`;
+
+    // Wire hub tiles
+    $$('.hub-tile').forEach(t=>t.addEventListener('click',()=>navigate(t.dataset.page)));
+
+    // Wire goal check-ins (same as dashboard)
+    const gc=$('#dash-goals');
+    goals.forEach(g=>{const done=!!g.log[ts], streak=Store.calcStreak(g.log,g.frequency), tools=g.tools||['check'];
+      const counterVal=tools.includes('counter')?(Store.getToolData(g.id)?.counter||0):null;
+      const ratingVal=tools.includes('rating')?(Store.getToolData(g.id)?.rating||0):null;
+      const isMed=tools.includes('medication');
+      let extra=''; if(counterVal!==null)extra+=`<span class="goal-mini-info">&#x1F504;${counterVal}</span>`;if(ratingVal)extra+=`<span class="goal-mini-info">${'&#x2605;'.repeat(ratingVal)}</span>`;if(isMed)extra+=`<span class="goal-mini-info">&#x1F48A;</span>`;
+      const row=document.createElement('div');row.className=`goal-row ${done?'done':''}`;
+      row.innerHTML=`<div class="goal-check ${done?'checked':''}" id="chk-${g.id}">${done?'&#x2713;':''}</div><span class="goal-icon-wrap">${icon(g.icon,g.emoji,22,g.customIcon)}</span><span class="goal-name">${g.name}</span>${extra}<span class="goal-streak">&#x1F525; ${streak}</span>`;
+      row.querySelector(`#chk-${g.id}`).addEventListener('click',e=>{
+        e.stopPropagation(); const wasDone=!!g.log[ts]; Store.toggleGoal(g.id);
+        Milestones.checkAll().forEach(b=>toast(`&#x1F3C6; ${b.label}!`));
+        if(!wasDone){const ns=Store.calcStreak(Store.getGoals().find(x=>x.id===g.id).log,g.frequency);const nd=Store.getActiveGoals().filter(x=>x.log[ts]).length;toast(nd===goals.length?Motivation.getEncouragement({type:'all_done',todayDone:nd,todayTotal:goals.length}):Motivation.getEncouragement({type:'complete_goal',goalName:g.name,streak:ns}),3000);}
+        renderHome();
+      });
+      row.addEventListener('click',()=>renderGoalDetail(g.id));
+      gc.appendChild(row);
+    });
+
+    const qb=$('#q-btn'),qr=$('#q-reveal');qb.addEventListener('click',()=>{qb.classList.add('hidden');qr.classList.remove('hidden');});qr.addEventListener('click',()=>{$('#q-text').textContent=`"${Quotes.getRandom()}"`;});
+    $$('.alert-dismiss').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();Reminders.dismissAlert(b.dataset.dismiss);b.closest('.alert-banner').remove();}));
+
+    // Avatar editor
+    $('#avatar-edit-btn').addEventListener('click',()=>{
+      const cur=Motivation.getAvatar();
+      openModal(`<div class="modal-title">Choose Your Avatar</div>
+        <div class="modal-section-label">Pick a character:</div>
+        <div class="avatar-grid">${Motivation.AVATARS.map(a=>`<button class="avatar-pick-btn ${cur.id===a.id?'selected':''}" data-id="${a.id}" data-emoji="${a.emoji}">${a.emoji}<span class="avatar-pick-label">${a.name}</span></button>`).join('')}</div>
+        <div class="modal-section-label" style="margin-top:12px">Or type your own emoji:</div>
+        <div class="input-row"><input type="text" class="app-input" id="av-emoji-input" maxlength="4" style="width:70px;text-align:center;font-size:22px"><button class="app-btn ghost small" id="av-emoji-use">Use</button></div>
+        <div class="modal-section-label" style="margin-top:12px">Or upload a photo:</div>
+        <div class="input-row"><button class="app-btn ghost small" id="av-upload-btn">Upload Image</button><input type="file" id="av-file-input" accept="image/*" style="display:none"></div>
+        <div class="modal-actions"><button class="app-btn ghost" id="av-cancel">Cancel</button></div>`);
+      $$('.avatar-pick-btn').forEach(b=>b.addEventListener('click',()=>{Motivation.setAvatar({type:'preset',id:b.dataset.id,emoji:b.dataset.emoji,customImage:null});closeModal();renderHome();}));
+      $('#av-emoji-use').addEventListener('click',()=>{const e=$('#av-emoji-input').value.trim();if(e){Motivation.setAvatar({type:'emoji',id:'custom',emoji:e,customImage:null});closeModal();renderHome();}});
+      $('#av-upload-btn').addEventListener('click',()=>$('#av-file-input').click());
+      $('#av-file-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=96;c.height=96;const ctx=c.getContext('2d');const s=Math.min(img.width,img.height);const sx=(img.width-s)/2,sy=(img.height-s)/2;ctx.beginPath();ctx.arc(48,48,48,0,Math.PI*2);ctx.clip();ctx.drawImage(img,sx,sy,s,s,0,0,96,96);Motivation.setAvatar({type:'upload',id:'custom',emoji:'custom',customImage:c.toDataURL('image/jpeg',0.8)});closeModal();renderHome();};img.src=ev.target.result;};r.readAsDataURL(f);});
+      $('#av-cancel').addEventListener('click',closeModal);
+    });
+    const cab=$('#btn-all-challenges'); if(cab) cab.addEventListener('click',()=>navigate('challenges'));
+  };
+
+  // ============================================================
   // WEIGHT PAGE
   // ============================================================
   const renderWeight = () => {
     const w=Store.getWeights(), st=w.length?w[0].weight:0, cu=w.length?w[w.length-1].weight:0, lo=Math.max(0,st-cu).toFixed(1);
-    container().innerHTML=`<div class="card fade-in"><div class="card-title">Weight Trend</div><div id="wc" class="chart-container"></div></div>
+    container().innerHTML=`<div class="sub-page-header"><button class="back-btn" id="back-home">&#x2190; Home</button><span class="sub-page-title">Weight</span></div>
+      <div class="card fade-in"><div class="card-title">Weight Trend</div><div id="wc" class="chart-container"></div></div>
       <div class="card fade-in" style="animation-delay:0.05s"><div class="stats-grid cols-3"><div class="stat-block"><div class="stat-value">${st||'—'}</div><div class="stat-label">Start</div></div><div class="stat-block"><div class="stat-value">${cu||'—'}</div><div class="stat-label">Current</div></div><div class="stat-block"><div class="stat-value">${lo}</div><div class="stat-label">Lost</div></div></div></div>
       <div class="card fade-in" style="animation-delay:0.1s"><div class="card-title">Log Weight</div><div class="input-row"><input type="number" id="w-in" class="app-input" placeholder="e.g. 185.5" step="0.1"><button class="app-btn primary" id="w-btn">Log</button></div></div>
       <div class="card fade-in" style="animation-delay:0.15s"><div class="card-title">History</div><div id="w-hist" class="history-list"></div></div>`;
     Chart.render('wc',w);
     const h=$('#w-hist');[...w].reverse().slice(0,30).forEach(e=>{h.innerHTML+=`<div class="history-row"><span class="history-date">${fmtDate(e.date)}</span><span class="history-value">${e.weight} ${Store.getLabel('weightUnit','lbs')}</span></div>`;});
     $('#w-btn').addEventListener('click',()=>{if(Store.addWeight($('#w-in').value)){toast('Logged! 💪');Milestones.checkAll();renderWeight();}else toast('Enter valid weight');});
+    $('#back-home').addEventListener('click',()=>navigate('home'));
   };
 
   // ============================================================
@@ -416,7 +509,8 @@ const UI = (() => {
     const logs=Store.getSleepLogs().slice(-14).reverse();
 
     container().innerHTML=`
-      <div class="card fade-in"><div class="card-title">😴 Log Sleep</div>
+      <div class="sub-page-header"><button class="back-btn" id="back-home">&#x2190; Home</button><span class="sub-page-title">Sleep</span></div>
+      <div class="card fade-in"><div class="card-title">Log Sleep</div>
         <div class="sleep-input-grid">
           <div class="sleep-field"><label class="settings-label">Bedtime</label><input type="time" id="sl-bed" class="app-input" value="${entry?.bedtime||'22:30'}"></div>
           <div class="sleep-field"><label class="settings-label">Wake Time</label><input type="time" id="sl-wake" class="app-input" value="${entry?.wakeTime||'06:30'}"></div>
@@ -454,6 +548,7 @@ const UI = (() => {
     // History
     const hEl=$('#sl-hist');
     logs.forEach(l=>{hEl.innerHTML+=`<div class="history-row"><span class="history-date">${fmtDate(l.date)}</span><span class="history-value">${l.hours.toFixed(1)}h ${'★'.repeat(l.quality||0)}</span></div>`;});
+    $('#back-home').addEventListener('click',()=>navigate('home'));
   };
 
   // ============================================================
@@ -1529,7 +1624,7 @@ const UI = (() => {
   // ============================================================
   // ROUTER
   // ============================================================
-  const pages = { dashboard:renderDashboard, weight:renderWeight, sleep:renderSleep, budget:renderBudget, goals:renderGoals, stats:renderStats, awards:renderAwards, settings:renderSettings, more:renderMore, grocery:renderGrocery, todos:renderTodos, dates:renderDates, challenges:renderChallenges, suggestions:renderSuggestions };
-  const navigate = page => { if(pages[page]){container().innerHTML='';pages[page]();} };
+  const pages = { home:renderHome, track:renderGoals, money:renderBudget, stats:renderStats, settings:renderSettings, weight:renderWeight, sleep:renderSleep, grocery:renderGrocery, todos:renderTodos, dates:renderDates, challenges:renderChallenges, suggestions:renderSuggestions, awards:renderAwards, goaldetail:null };
+  const navigate = page => { if(pages[page]!==undefined && pages[page]){container().innerHTML='';pages[page]();} };
   return { navigate, toast, openModal, closeModal, renderDashboard };
 })();

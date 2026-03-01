@@ -38,8 +38,8 @@ const App = (() => {
       navigateTo('settings');
     });
 
-    // Load dashboard
-    navigateTo('dashboard');
+    // Load home
+    navigateTo('home');
 
     // Register service worker
     if ('serviceWorker' in navigator) {
@@ -56,8 +56,20 @@ const App = (() => {
       showInstallBanner();
     });
 
+    // Start reminders system
+    Reminders.start();
+
     // Apply custom labels
     applyLabels();
+
+    // Mobile keyboard scroll fix — scroll focused inputs into view
+    document.addEventListener('focusin', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    });
 
     console.log('Daily Pulse initialized ✓');
   };

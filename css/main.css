@@ -105,9 +105,10 @@ body::after {
 }
 
 .header-logo {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
+  object-fit: contain;
 }
 
 .header-title {
@@ -1887,8 +1888,41 @@ body::after {
 .spend-goal-vals.over { color: #ef4444; }
 
 /* ============================================================
-   MORE HUB
+   HUB GRID (Home page tiles)
    ============================================================ */
+.hub-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.hub-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 16px 8px; border-radius: var(--border-radius);
+  background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  cursor: pointer; transition: all 0.2s; position: relative;
+}
+.hub-tile:hover, .hub-tile:active { border-color: var(--accent-primary); transform: scale(0.97); }
+.hub-tile-emoji { font-size: 26px; }
+.hub-tile-name { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+.hub-tile-badge {
+  position: absolute; top: 6px; right: 6px;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: var(--accent-primary); color: #fff; border-radius: 9px;
+  font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.hub-tile-badge.urgent { background: #ef4444; }
+
+/* Sub-page header with back button */
+.sub-page-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; margin-bottom: 4px;
+}
+.back-btn {
+  background: none; border: none; color: var(--accent-primary);
+  font-size: 15px; font-weight: 600; cursor: pointer; padding: 4px 0;
+  font-family: var(--font-body);
+}
+.sub-page-title {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+}
+
+/* Legacy more-grid alias */
 .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .more-tile {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
