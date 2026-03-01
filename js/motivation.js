@@ -6,6 +6,8 @@ const Motivation = (() => {
   const _set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
   // ---- AVATARS ----
+  // 135 custom image avatars in public/icons/avatars/1.png - 135.png
+  const AVATAR_COUNT = 135;
   const AVATARS = [
     { id: 'av_warrior', emoji: '⚔️', name: 'Warrior' }, { id: 'av_wizard', emoji: '🧙', name: 'Wizard' },
     { id: 'av_astronaut', emoji: '🧑‍🚀', name: 'Astronaut' }, { id: 'av_ninja', emoji: '🥷', name: 'Ninja' },
@@ -17,7 +19,7 @@ const Motivation = (() => {
     { id: 'av_sprout', emoji: '🌱', name: 'Sprout' }, { id: 'av_star', emoji: '⭐', name: 'Star' }
   ];
 
-  const getAvatar = () => _get('dp_avatar', { type: 'builtin', id: 'av_star', emoji: '⭐', customImage: null });
+  const getAvatar = () => _get('dp_avatar', { type: 'builtin', id: 'av_star', emoji: '⭐', customImage: null, imageNum: null });
   const setAvatar = (av) => _set('dp_avatar', av);
   const getUserName = () => _get('dp_user_name', '');
   const setUserName = (n) => _set('dp_user_name', n);
@@ -25,7 +27,35 @@ const Motivation = (() => {
   const renderAvatarHTML = (size = 48) => {
     const av = getAvatar();
     if (av.customImage) return `<img src="${av.customImage}" class="avatar-img" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover">`;
+    if (av.imageNum) return `<img src="public/icons/avatars/${av.imageNum}.png" class="avatar-img" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover" onerror="this.textContent='⭐'">`;
     return `<span class="avatar-emoji" style="font-size:${size * 0.7}px;width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;background:var(--bg-tertiary);border-radius:50%">${av.emoji}</span>`;
+  };
+
+  // Build avatar picker HTML (called from ui.js)
+  const buildAvatarPickerHTML = () => {
+    const cur = getAvatar();
+    // Image avatars grid (show first 24, with "show all" expand)
+    let imgGrid = '';
+    for (let i = 1; i <= AVATAR_COUNT; i++) {
+      imgGrid += `<button class="avatar-img-btn ${cur.imageNum==i?'selected':''}" data-num="${i}"><img src="public/icons/avatars/${i}.png" width="48" height="48" style="border-radius:50%;object-fit:cover" loading="lazy"></button>`;
+    }
+    return `<div class="avatar-picker-tabs">
+        <button class="avatar-tab active" data-tab="images">Characters</button>
+        <button class="avatar-tab" data-tab="emoji">Emoji</button>
+        <button class="avatar-tab" data-tab="upload">Upload</button>
+      </div>
+      <div class="avatar-tab-content" id="avtab-images">
+        <div class="avatar-img-grid" id="avatar-img-grid">${imgGrid}</div>
+      </div>
+      <div class="avatar-tab-content hidden" id="avtab-emoji">
+        <div class="avatar-grid">${AVATARS.map(a=>`<button class="avatar-pick-btn ${cur.id===a.id&&!cur.imageNum?'selected':''}" data-id="${a.id}" data-emoji="${a.emoji}">${a.emoji}<span class="avatar-pick-label">${a.name}</span></button>`).join('')}</div>
+        <div style="margin-top:10px"><div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">Or type any emoji:</div>
+        <div class="input-row"><input type="text" class="app-input" id="av-emoji-input" maxlength="4" style="width:70px;text-align:center;font-size:22px"><button class="app-btn ghost small" id="av-emoji-use">Use</button></div></div>
+      </div>
+      <div class="avatar-tab-content hidden" id="avtab-upload">
+        <div style="text-align:center;padding:20px"><button class="app-btn primary" id="av-upload-btn">Choose Photo</button><input type="file" id="av-file-input" accept="image/*" style="display:none">
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:8px">Upload your own photo as avatar</div></div>
+      </div>`;
   };
 
   // ---- ENCOURAGEMENT ----
@@ -197,7 +227,7 @@ const Motivation = (() => {
   const reset = () => { ['dp_avatar', 'dp_challenges', 'dp_achievements', 'dp_user_name'].forEach(k => localStorage.removeItem(k)); };
 
   return {
-    AVATARS, getAvatar, setAvatar, getUserName, setUserName, renderAvatarHTML,
+    AVATARS, AVATAR_COUNT, getAvatar, setAvatar, getUserName, setUserName, renderAvatarHTML, buildAvatarPickerHTML,
     getEncouragement, generateChallenges, getChallenges, acceptChallenge, dismissChallenge,
     getAllAchievements, getAchievements, isAchieved, SUGGESTED_GOALS, getSuggestedGoals, reset
   };

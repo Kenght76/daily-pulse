@@ -82,39 +82,37 @@ body.theme-ocean { background: linear-gradient(170deg, #0a1628 0%, #0c1e3a 35%, 
 .theme-ocean #page-content::after { content: ''; position: fixed; bottom: 64px; left: 0; right: 0; height: 80px; background: linear-gradient(0deg, rgba(14,165,233,0.04), transparent); pointer-events: none; z-index: 0; }
 
 /* ============================================================
-   🌅 SUNSET — Warm amber gradient, golden hour warmth
-   Like sitting on a porch watching the sky turn gold
+   🌅 SUNSET — Warm coral pink, actual sunset sky colors
    ============================================================ */
 .theme-sunset {
-  --bg-primary: #1c1410;
-  --bg-secondary: rgba(255,180,100,0.04);
+  --bg-primary: #1a0f18;
+  --bg-secondary: rgba(255,120,80,0.04);
   --bg-tertiary: rgba(0,0,0,0.3);
-  --text-primary: #f8ece0;
-  --text-secondary: #a08060;
-  --text-accent: #fbbf24;
-  --accent-primary: #f59e0b;
-  --accent-secondary: #ef4444;
-  --accent-gradient: linear-gradient(135deg, #f59e0b, #d97706);
-  --border-color: rgba(251,191,36,0.07);
-  --shadow-color: rgba(40,20,0,0.3);
+  --text-primary: #fff0e8;
+  --text-secondary: #c08878;
+  --text-accent: #fb7185;
+  --accent-primary: #f43f5e;
+  --accent-secondary: #f97316;
+  --accent-gradient: linear-gradient(135deg, #f43f5e, #e11d48);
+  --border-color: rgba(244,63,94,0.07);
+  --shadow-color: rgba(40,10,20,0.3);
 }
-body.theme-sunset { background: linear-gradient(170deg, #1c1410 0%, #251a12 30%, #1e1510 60%, #1a1210 100%); }
+body.theme-sunset { background: linear-gradient(170deg, #1a0f18 0%, #2a1520 30%, #1e1018 60%, #180e14 100%); }
 .theme-sunset .card {
-  background: linear-gradient(160deg, rgba(40,25,15,0.5), rgba(30,20,12,0.6));
-  border: 1px solid rgba(251,191,36,0.06);
-  box-shadow: 0 4px 20px rgba(20,10,0,0.25);
+  background: linear-gradient(160deg, rgba(45,20,30,0.5), rgba(35,15,25,0.6));
+  border: 1px solid rgba(244,63,94,0.06);
+  box-shadow: 0 4px 20px rgba(30,5,15,0.25);
 }
-.theme-sunset .header-title { background: linear-gradient(135deg, #fde68a, #fbbf24, #f59e0b); -webkit-background-clip: text; background-clip: text; }
-.theme-sunset .stat-value { background: linear-gradient(135deg, #fde68a, #fbbf24); -webkit-background-clip: text; background-clip: text; }
-.theme-sunset #bottom-nav { background: rgba(22,16,12,0.94); border-top: 1px solid rgba(251,191,36,0.06); }
-.theme-sunset .nav-btn.active { color: #fbbf24; }
-.theme-sunset .nav-btn.active::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-.theme-sunset .goal-row.done { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.15); }
-.theme-sunset .goal-check.checked { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
-.theme-sunset .week-dot.done { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25); color: #fbbf24; }
-.theme-sunset .circle-progress-ring { stroke: #f59e0b; }
-/* Warm glow at header */
-.theme-sunset #app-header { background: linear-gradient(180deg, rgba(245,158,11,0.06), transparent); }
+.theme-sunset .header-title { background: linear-gradient(135deg, #fda4af, #fb7185, #f97316); -webkit-background-clip: text; background-clip: text; }
+.theme-sunset .stat-value { background: linear-gradient(135deg, #fda4af, #fb7185); -webkit-background-clip: text; background-clip: text; }
+.theme-sunset #bottom-nav { background: rgba(20,10,16,0.94); border-top: 1px solid rgba(244,63,94,0.06); }
+.theme-sunset .nav-btn.active { color: #fb7185; }
+.theme-sunset .nav-btn.active::before { background: linear-gradient(90deg, #f43f5e, #f97316); }
+.theme-sunset .goal-row.done { background: rgba(244,63,94,0.07); border-color: rgba(244,63,94,0.15); }
+.theme-sunset .goal-check.checked { background: linear-gradient(135deg, #f43f5e, #e11d48); box-shadow: 0 2px 8px rgba(244,63,94,0.3); }
+.theme-sunset .week-dot.done { background: rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.25); color: #fb7185; }
+.theme-sunset .circle-progress-ring { stroke: #f43f5e; }
+.theme-sunset #app-header { background: linear-gradient(180deg, rgba(249,115,22,0.06), transparent); }
 
 /* ============================================================
    🌲 FOREST — Deep pine & moss, natural and grounded

@@ -467,19 +467,18 @@ const UI = (() => {
 
     // Avatar editor
     $('#avatar-edit-btn').addEventListener('click',()=>{
-      const cur=Motivation.getAvatar();
-      openModal(`<div class="modal-title">Choose Your Avatar</div>
-        <div class="modal-section-label">Pick a character:</div>
-        <div class="avatar-grid">${Motivation.AVATARS.map(a=>`<button class="avatar-pick-btn ${cur.id===a.id?'selected':''}" data-id="${a.id}" data-emoji="${a.emoji}">${a.emoji}<span class="avatar-pick-label">${a.name}</span></button>`).join('')}</div>
-        <div class="modal-section-label" style="margin-top:12px">Or type your own emoji:</div>
-        <div class="input-row"><input type="text" class="app-input" id="av-emoji-input" maxlength="4" style="width:70px;text-align:center;font-size:22px"><button class="app-btn ghost small" id="av-emoji-use">Use</button></div>
-        <div class="modal-section-label" style="margin-top:12px">Or upload a photo:</div>
-        <div class="input-row"><button class="app-btn ghost small" id="av-upload-btn">Upload Image</button><input type="file" id="av-file-input" accept="image/*" style="display:none"></div>
-        <div class="modal-actions"><button class="app-btn ghost" id="av-cancel">Cancel</button></div>`);
-      $$('.avatar-pick-btn').forEach(b=>b.addEventListener('click',()=>{Motivation.setAvatar({type:'preset',id:b.dataset.id,emoji:b.dataset.emoji,customImage:null});closeModal();renderHome();}));
-      $('#av-emoji-use').addEventListener('click',()=>{const e=$('#av-emoji-input').value.trim();if(e){Motivation.setAvatar({type:'emoji',id:'custom',emoji:e,customImage:null});closeModal();renderHome();}});
-      $('#av-upload-btn').addEventListener('click',()=>$('#av-file-input').click());
-      $('#av-file-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=96;c.height=96;const ctx=c.getContext('2d');const s=Math.min(img.width,img.height);const sx=(img.width-s)/2,sy=(img.height-s)/2;ctx.beginPath();ctx.arc(48,48,48,0,Math.PI*2);ctx.clip();ctx.drawImage(img,sx,sy,s,s,0,0,96,96);Motivation.setAvatar({type:'upload',id:'custom',emoji:'custom',customImage:c.toDataURL('image/jpeg',0.8)});closeModal();renderHome();};img.src=ev.target.result;};r.readAsDataURL(f);});
+      openModal(`<div class="modal-title">Choose Your Avatar</div>${Motivation.buildAvatarPickerHTML()}
+        <div class="modal-actions"><button class="app-btn ghost" id="av-cancel">Close</button></div>`);
+      // Tab switching
+      $$('.avatar-tab').forEach(t=>t.addEventListener('click',()=>{$$('.avatar-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.avatar-tab-content').forEach(c=>c.classList.add('hidden'));$(`#avtab-${t.dataset.tab}`).classList.remove('hidden');}));
+      // Image avatar picks
+      $$('.avatar-img-btn').forEach(b=>b.addEventListener('click',()=>{Motivation.setAvatar({type:'image',id:'img_'+b.dataset.num,emoji:'',customImage:null,imageNum:parseInt(b.dataset.num)});closeModal();renderHome();}));
+      // Emoji picks
+      $$('.avatar-pick-btn').forEach(b=>b.addEventListener('click',()=>{Motivation.setAvatar({type:'preset',id:b.dataset.id,emoji:b.dataset.emoji,customImage:null,imageNum:null});closeModal();renderHome();}));
+      const eBtn=$('#av-emoji-use');if(eBtn)eBtn.addEventListener('click',()=>{const e=$('#av-emoji-input').value.trim();if(e){Motivation.setAvatar({type:'emoji',id:'custom',emoji:e,customImage:null,imageNum:null});closeModal();renderHome();}});
+      // Upload
+      const uBtn=$('#av-upload-btn');if(uBtn)uBtn.addEventListener('click',()=>$('#av-file-input').click());
+      const fi=$('#av-file-input');if(fi)fi.addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=96;c.height=96;const ctx=c.getContext('2d');const s=Math.min(img.width,img.height);const sx=(img.width-s)/2,sy=(img.height-s)/2;ctx.beginPath();ctx.arc(48,48,48,0,Math.PI*2);ctx.clip();ctx.drawImage(img,sx,sy,s,s,0,0,96,96);Motivation.setAvatar({type:'upload',id:'custom',emoji:'custom',customImage:c.toDataURL('image/jpeg',0.8),imageNum:null});closeModal();renderHome();};img.src=ev.target.result;};r.readAsDataURL(f);});
       $('#av-cancel').addEventListener('click',closeModal);
     });
     const cab=$('#btn-all-challenges'); if(cab) cab.addEventListener('click',()=>navigate('challenges'));
