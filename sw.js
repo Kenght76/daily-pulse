@@ -3,12 +3,16 @@
 // Strategy: Cache first, network fallback
 // ============================================================
 
-const CACHE_NAME = 'daily-pulse-v2';
+const CACHE_NAME = 'daily-pulse-v3';
 
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './favicon.ico',
+  './public/icons/logo-192.png',
+  './public/icons/logo.png',
+  './public/icons/apple-touch-icon.png',
   './css/main.css',
   './css/themes.css',
   './css/buttons.css',
